@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ManaBazar — Discover Local Stores</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+  /* ================================================================
+     AGGREGATOR — Discovery / "Near Me" page
+     Uses design-system.css for all tokens.
+     Merchant cards link to storefront.html for full demo flow.
+     ================================================================ */
+
+  /* ── Header ── */
+  .agg-header {
+    background: var(--color-surface); padding: var(--space-md) var(--space-lg);
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(12px); background: rgba(255,255,255,0.92);
+  }
+  .agg-brand { font-size: var(--font-3xl); font-weight: var(--weight-black); color: var(--color-primary); letter-spacing: -0.3px; }
+  .agg-location {
+    display: flex; align-items: center; gap: 4px;
+    font-size: var(--font-base); color: var(--color-body); cursor: pointer;
+    padding: 6px 12px; background: var(--color-bg-tint); border-radius: var(--radius-full);
+    transition: background var(--duration-fast);
+  }
+  .agg-location:active { background: var(--color-bg-warm); }
+  .agg-location-pin { color: var(--color-primary); }
+  .agg-location-name { font-weight: var(--weight-semi); color: var(--color-dark); }
+  .agg-location-arrow { font-size: 10px; color: var(--color-subtle); }
+
+  /* ── Search ── */
+  .agg-search { padding: var(--space-md) var(--space-lg); background: var(--color-surface); position: relative; z-index: 25; }
+  .agg-search-input {
+    width: 100%; padding: 12px 14px 12px 40px; border: 1.5px solid var(--color-divider);
+    border-radius: var(--radius-md); font-size: var(--font-md); background: var(--color-bg);
+    outline: none; transition: border-color var(--duration-fast);
+  }
+  .agg-search-input:focus { border-color: var(--color-primary); }
+  .agg-search-icon { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: var(--color-subtle); font-size: 16px; pointer-events: none; }
+  .search-overlay {
+    display: none; position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: var(--max-width); height: 100vh; background: var(--color-bg);
+    z-index: 30; overflow-y: auto;
+  }
+  .search-overlay.open { display: block; animation: screenIn var(--duration-normal) var(--ease-out); }
+  .search-overlay-bar {
+    padding: var(--space-md) var(--space-lg); background: var(--color-surface);
+    display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--color-border);
+    position: sticky; top: 0; z-index: 31;
+  }
+  .search-overlay-bar input {
+    flex: 1; padding: 12px 14px; border: 1.5px solid var(--color-primary);
+    border-radius: var(--radius-md); font-size: var(--font-md); background: var(--color-bg); outline: none;
+  }
+  .search-overlay-cancel { font-size: var(--font-md); color: var(--color-primary); font-weight: var(--weight-semi); cursor: pointer; white-space: nowrap; }
+
+  /* ── See All Filters ── */
+  .seeall-filters {
+    display: flex; gap: 8px; padding: var(--space-sm) var(--space-lg) var(--space-md);
+    overflow-x: auto; background: var(--color-bg);
+  }
+  .sa-chip {
+    padding: 7px 14px; border-radius: var(--radius-full); font-size: var(--font-sm);
+    font-weight: var(--weight-medium); background: var(--color-surface);
+    border: 1.5px solid var(--color-divider); color: var(--color-body);
+    white-space: nowrap; cursor: pointer; flex-shrink: 0; transition: all var(--duration-fast);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .sa-chip:active { transform: scale(0.95); }
+  .sa-chip.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+  .sa-chip-arrow { font-size: 9px; }
+
+  /* ── Category Pills ── */
+  .agg-categories {
+    display: flex; gap: 10px; padding: var(--space-md) var(--space-lg);
+    background: var(--color-surface); overflow-x: auto; white-space: nowrap;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .agg-cat-pill {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    min-width: 64px; cursor: pointer; flex-shrink: 0;
+  }
+  .agg-cat-icon {
+    width: 52px; height: 52px; border-radius: var(--radius-xl);
+    background: var(--color-bg-warm); display: flex; align-items: center;
+    justify-content: center; font-size: 24px;
+    transition: all var(--duration-fast);
+  }
+  .agg-cat-pill:active .agg-cat-icon { transform: scale(0.92); }
+  .agg-cat-pill.active .agg-cat-icon { background: var(--color-primary-light); box-shadow: 0 0 0 2.5px var(--color-primary); }
+  .agg-cat-label { font-size: var(--font-xs); font-weight: var(--weight-medium); color: var(--color-muted); text-align: center; }
+  .agg-cat-pill.active .agg-cat-label { color: var(--color-primary); font-weight: var(--weight-bold); }
+
+  /* ── Featured Banner ── */
+  .featured-banner {
+    margin: var(--space-md) var(--space-lg); border-radius: var(--radius-xl); overflow: hidden;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 50%, var(--color-primary-darker) 100%);
+    padding: 18px; color: #fff; position: relative; cursor: pointer;
+    box-shadow: var(--shadow-primary); transition: transform var(--duration-fast);
+  }
+  .featured-banner:active { transform: scale(0.98); }
+  .featured-tag {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--color-secondary); color: var(--color-secondary-text);
+    padding: 3px 10px; border-radius: var(--radius-md); font-size: 10px; font-weight: var(--weight-bold);
+  }
+  .featured-store-row { display: flex; align-items: center; gap: 12px; }
+  .featured-store-logo {
+    width: 52px; height: 52px; border-radius: var(--radius-lg);
+    background: rgba(255,255,255,0.15); display: flex; align-items: center;
+    justify-content: center; font-size: 24px; backdrop-filter: blur(4px);
+  }
+  .featured-store-name { font-size: 17px; font-weight: var(--weight-bold); }
+  .featured-store-cat { font-size: var(--font-sm); opacity: 0.85; }
+  .featured-store-meta { display: flex; gap: 12px; margin-top: 12px; font-size: var(--font-sm); opacity: 0.9; }
+  .featured-store-offer {
+    margin-top: 10px; padding: 8px 14px;
+    background: rgba(251,191,36,0.2); border: 1px solid rgba(251,191,36,0.3);
+    border-radius: var(--radius-sm); font-size: var(--font-base); font-weight: var(--weight-semi);
+  }
+
+  /* ── Quick Filters ── */
+  .quick-filters { display: flex; gap: 8px; padding: 8px var(--space-lg) var(--space-md); overflow-x: auto; }
+  .qf-chip {
+    padding: 7px 16px; border-radius: var(--radius-full); font-size: var(--font-sm); font-weight: var(--weight-medium);
+    background: var(--color-surface); border: 1.5px solid var(--color-divider); color: var(--color-body);
+    white-space: nowrap; cursor: pointer; flex-shrink: 0; transition: all var(--duration-fast);
+  }
+  .qf-chip:active { transform: scale(0.95); }
+  .qf-chip.active {
+    background: var(--color-primary); color: #fff; border-color: var(--color-primary);
+    box-shadow: var(--shadow-primary);
+  }
+
+  /* ── Section Header ── */
+  .sec-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px var(--space-lg) 10px;
+  }
+  .sec-title { font-size: 17px; font-weight: var(--weight-bold); color: var(--color-dark); }
+  .sec-subtitle { font-size: var(--font-sm); color: var(--color-subtle); margin-top: 2px; }
+  .sec-see-all { font-size: var(--font-base); color: var(--color-primary); font-weight: var(--weight-semi); cursor: pointer; }
+
+  /* ── Merchant Cards (Horizontal Scroll) ── */
+  .mc-scroll { display: flex; gap: 12px; padding: 0 var(--space-lg) var(--space-lg); overflow-x: auto; }
+  .mc-card {
+    min-width: 280px; background: var(--color-surface); border-radius: var(--radius-xl);
+    overflow: hidden; flex-shrink: 0; border: 1px solid var(--color-border);
+    transition: all var(--duration-normal) var(--ease-out); position: relative; cursor: pointer;
+  }
+  .mc-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .mc-card:active { transform: scale(0.98); }
+  .mc-card-img {
+    width: 100%; height: 130px; display: flex; align-items: center;
+    justify-content: center; font-size: 48px; position: relative;
+  }
+  .mc-card-badges { position: absolute; bottom: 8px; left: 8px; display: flex; gap: 4px; }
+  .mc-badge {
+    padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: var(--weight-semi);
+    backdrop-filter: blur(8px);
+  }
+  .mc-badge--verified { background: rgba(5,150,105,0.9); color: #fff; }
+  .mc-badge--fast     { background: rgba(59,130,246,0.9); color: #fff; }
+  .mc-badge--popular  { background: rgba(251,191,36,0.95); color: var(--color-secondary-text); }
+  .mc-badge--loyalty  { background: rgba(220,38,38,0.9); color: #fff; }
+  .mc-card-body { padding: 12px; }
+  .mc-name { font-size: var(--font-lg); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .mc-category { font-size: var(--font-sm); color: var(--color-subtle); margin-top: 1px; }
+  .mc-meta { display: flex; gap: 10px; margin-top: 8px; font-size: var(--font-sm); color: var(--color-muted); }
+  .mc-meta-star { color: var(--color-secondary); }
+  .mc-delivery-tag {
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+    padding: 4px 10px; border-radius: 6px; font-size: var(--font-xs); font-weight: var(--weight-medium);
+    background: var(--color-success-light); color: var(--color-success-dark);
+  }
+  .mc-offer-tag {
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+    padding: 4px 10px; border-radius: 6px; font-size: var(--font-xs); font-weight: var(--weight-semi);
+    background: var(--color-secondary-light); color: #92400E;
+  }
+  .mc-sponsored {
+    position: absolute; top: 8px; right: 8px; font-size: 10px; color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.35); padding: 2px 8px; border-radius: 4px; backdrop-filter: blur(4px);
+  }
+
+  /* ── Merchant List (Vertical) ── */
+  .mc-list { padding: 0 var(--space-lg) var(--space-lg); }
+  .mc-list-card {
+    display: flex; gap: 12px; padding: var(--space-lg); background: var(--color-surface);
+    border-radius: var(--radius-lg); margin-bottom: 10px; border: 1px solid var(--color-border);
+    position: relative; transition: all var(--duration-normal) var(--ease-out); cursor: pointer;
+  }
+  .mc-list-card:hover { box-shadow: var(--shadow-sm); }
+  .mc-list-card:active { transform: scale(0.99); }
+  .mlc-img {
+    width: 80px; height: 80px; border-radius: var(--radius-lg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; flex-shrink: 0;
+  }
+  .mlc-body { flex: 1; min-width: 0; }
+  .mlc-name { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .mlc-category { font-size: var(--font-sm); color: var(--color-subtle); }
+  .mlc-badges { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .mlc-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: var(--weight-semi); }
+  .mlc-badge--verified { background: var(--color-success-light); color: var(--color-success-dark); }
+  .mlc-badge--fast     { background: var(--color-accent-light); color: var(--color-accent-dark); }
+  .mlc-badge--popular  { background: var(--color-secondary-light); color: #92400E; }
+  .mlc-badge--whatsapp { background: var(--color-success-light); color: var(--color-success-dark); }
+  .mlc-meta { display: flex; gap: 10px; margin-top: 6px; font-size: var(--font-sm); color: var(--color-muted); }
+  .mlc-sponsored { position: absolute; top: 8px; right: 8px; font-size: 9px; color: var(--color-subtle); }
+
+  /* ── Software Showcase ── */
+  .sw-section {
+    padding: 18px var(--space-lg);
+    background: linear-gradient(180deg, var(--color-bg-tint) 0%, var(--color-bg-warm) 100%);
+    margin: 4px 0;
+  }
+  .sw-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .sw-section-title { font-size: var(--font-base); font-weight: var(--weight-semi); color: var(--color-subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .sw-section-link { font-size: var(--font-sm); color: var(--color-primary); font-weight: var(--weight-semi); }
+  .sw-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .sw-card {
+    min-width: 240px; max-width: 240px; padding: var(--space-lg); background: var(--color-surface);
+    border-radius: var(--radius-lg); border: 1px solid var(--color-border); flex-shrink: 0;
+    display: flex; flex-direction: column; transition: all var(--duration-normal) var(--ease-out);
+    box-shadow: var(--shadow-xs);
+  }
+  .sw-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .sw-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .sw-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .sw-icon--pharma { background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted)); }
+  .sw-icon--retail { background: linear-gradient(135deg, var(--color-accent-light), var(--color-accent-muted)); }
+  .sw-icon--resto  { background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-ring)); }
+  .sw-name { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .sw-price { font-size: var(--font-xs); color: var(--color-muted); }
+  .sw-desc { font-size: var(--font-sm); color: var(--color-body); line-height: 1.4; margin-bottom: 10px; flex: 1; }
+  .sw-cta {
+    text-align: center; padding: 8px; border-radius: var(--radius-sm);
+    background: var(--color-primary-light); color: var(--color-primary);
+    font-size: var(--font-sm); font-weight: var(--weight-semi); cursor: pointer;
+    border: none; width: 100%; transition: all var(--duration-fast);
+  }
+  .sw-cta:hover { background: var(--color-primary); color: #fff; }
+
+  /* ── Register CTA ── */
+  .register-cta {
+    margin: var(--space-lg); padding: 28px 20px; border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-muted) 50%, var(--color-primary-ring) 100%);
+    border: 1px solid #FCA5A5; text-align: center;
+    box-shadow: 0 4px 20px rgba(220,38,38,0.1);
+  }
+  .register-cta-icon { font-size: 36px; margin-bottom: 8px; }
+  .register-cta-title { font-size: var(--font-2xl); font-weight: var(--weight-black); color: var(--color-primary-darker); }
+  .register-cta-desc { font-size: var(--font-base); color: var(--color-primary-dark); margin-top: 6px; line-height: 1.5; }
+  .register-cta-buttons { display: flex; gap: 10px; justify-content: center; margin-top: var(--space-lg); flex-wrap: wrap; }
+  .register-cta-stats {
+    display: flex; justify-content: center; gap: 24px; margin-top: 18px;
+    font-size: var(--font-sm); color: var(--color-primary-dark);
+  }
+  .register-cta-stats strong { font-size: var(--font-2xl); display: block; color: var(--color-primary-darker); font-weight: var(--weight-black); }
+
+  /* ── Footer ── */
+  .agg-footer { padding: var(--space-xl) var(--space-lg) 100px; background: var(--color-surface); text-align: center; }
+  .agg-footer-brand { font-size: var(--font-xl); font-weight: var(--weight-black); color: var(--color-primary); }
+  .agg-footer-tagline { font-size: var(--font-sm); color: var(--color-subtle); margin-top: 4px; }
+  .agg-footer-links { margin-top: 12px; display: flex; justify-content: center; gap: var(--space-xl); }
+  .agg-footer-links a { font-size: var(--font-sm); color: var(--color-muted); cursor: pointer; }
+  .agg-footer-links a:active { color: var(--color-primary); }
+  .agg-footer-copy { font-size: var(--font-xs); color: #d6d3d1; margin-top: 12px; }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: var(--max-width); background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 8px 0 12px; border-top: 1px solid var(--color-border); z-index: 20;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    cursor: pointer; position: relative;
+  }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 10px; font-weight: var(--weight-medium); color: var(--color-subtle); }
+  .nav-item.active .nav-label { color: var(--color-primary); font-weight: var(--weight-bold); }
+  .nav-badge {
+    position: absolute; top: -4px; right: -6px; width: 16px; height: 16px;
+    background: var(--color-primary); color: #fff; border-radius: var(--radius-full);
+    font-size: 9px; font-weight: var(--weight-bold); display: flex;
+    align-items: center; justify-content: center;
+  }
+
+  /* ── Info Pages (About, Help, Privacy, Terms, For Merchants) ── */
+  .info-page { padding-bottom: 100px; }
+  .info-content { padding: var(--space-lg); }
+  .info-content h2 { font-size: var(--font-2xl); font-weight: var(--weight-bold); color: var(--color-dark); margin: 20px 0 10px; }
+  .info-content h2:first-child { margin-top: 0; }
+  .info-content h3 { font-size: var(--font-lg); font-weight: var(--weight-semi); color: var(--color-dark); margin: 16px 0 8px; }
+  .info-content p { font-size: var(--font-md); color: var(--color-body); line-height: 1.6; margin-bottom: 12px; }
+  .info-content ul { padding-left: 20px; margin-bottom: 12px; }
+  .info-content li { font-size: var(--font-md); color: var(--color-body); line-height: 1.6; margin-bottom: 6px; }
+  .info-content .info-highlight {
+    background: var(--color-primary-light); border-left: 3px solid var(--color-primary);
+    padding: 12px 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin: 16px 0; font-size: var(--font-md); color: var(--color-primary-dark);
+  }
+
+  /* ── Search Results Screen ── */
+  .search-bar-active { padding: var(--space-md) var(--space-lg); background: var(--color-surface); position: relative; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--color-border); }
+  .search-bar-active input {
+    flex: 1; padding: 12px 14px; border: 1.5px solid var(--color-primary);
+    border-radius: var(--radius-md); font-size: var(--font-md); background: var(--color-bg);
+    outline: none;
+  }
+  .search-bar-active .search-cancel { font-size: var(--font-md); color: var(--color-primary); font-weight: var(--weight-semi); cursor: pointer; white-space: nowrap; }
+  .search-results-count { padding: var(--space-md) var(--space-lg); font-size: var(--font-sm); color: var(--color-muted); background: var(--color-bg); }
+
+  /* ── See All Screen ── */
+  .seeall-header-info { padding: var(--space-sm) var(--space-lg); background: var(--color-bg); font-size: var(--font-sm); color: var(--color-muted); border-bottom: 1px solid var(--color-border); }
+
+  /* ── Orders Empty ── */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px var(--space-lg); text-align: center;
+  }
+  .empty-state-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.6; }
+  .empty-state-title { font-size: var(--font-2xl); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .empty-state-desc { font-size: var(--font-md); color: var(--color-muted); margin-top: 8px; line-height: 1.5; }
+  .empty-state .btn { margin-top: 20px; }
+
+  /* ── Account Screen ── */
+  .account-header-card {
+    margin: var(--space-lg); padding: 24px; background: var(--color-surface);
+    border-radius: var(--radius-xl); border: 1px solid var(--color-border);
+    text-align: center;
+  }
+  .account-avatar { width: 64px; height: 64px; border-radius: var(--radius-full); background: var(--color-primary-light); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; }
+  .account-menu { margin: 0 var(--space-lg); }
+  .account-menu-item {
+    display: flex; align-items: center; gap: 14px; padding: 16px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); margin-bottom: 8px; cursor: pointer;
+    transition: all var(--duration-fast);
+  }
+  .account-menu-item:active { background: var(--color-bg-tint); }
+  .account-menu-icon { font-size: 20px; width: 32px; text-align: center; }
+  .account-menu-text { flex: 1; }
+  .account-menu-label { font-size: var(--font-md); font-weight: var(--weight-semi); color: var(--color-dark); }
+  .account-menu-desc { font-size: var(--font-sm); color: var(--color-muted); }
+  .account-menu-arrow { font-size: 14px; color: var(--color-subtle); }
+
+  /* ── FAQ ── */
+  .faq-item { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; }
+  .faq-q { padding: 14px 16px; font-size: var(--font-md); font-weight: var(--weight-semi); color: var(--color-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .faq-q:active { background: var(--color-bg-tint); }
+  .faq-a { padding: 0 16px 14px; font-size: var(--font-md); color: var(--color-body); line-height: 1.6; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-arrow { transition: transform var(--duration-fast); font-size: 12px; color: var(--color-subtle); }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+  /* ── Merchant Info Cards ── */
+  .merchant-benefit {
+    display: flex; gap: 14px; padding: 16px; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-bottom: 10px;
+  }
+  .merchant-benefit-icon { font-size: 28px; flex-shrink: 0; }
+  .merchant-benefit-title { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .merchant-benefit-desc { font-size: var(--font-sm); color: var(--color-body); line-height: 1.5; margin-top: 2px; }
+
+  /* ================================================================
+     SCREEN: STORE DETAIL (A1)
+     ================================================================ */
+  .sd-hero {
+    position: relative; height: 200px; overflow: hidden;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  }
+  .sd-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.6) 100%);
+  }
+  .sd-hero-content {
+    position: absolute; bottom: 0; left: 0; right: 0; padding: var(--space-lg);
+    color: #fff; display: flex; align-items: flex-end; gap: var(--space-md);
+  }
+  .sd-hero-logo {
+    width: 64px; height: 64px; border-radius: var(--radius-xl);
+    background: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; box-shadow: var(--shadow-lg); flex-shrink: 0;
+  }
+  .sd-hero-name { font-size: var(--font-3xl); font-weight: var(--weight-black); line-height: 1.2; }
+  .sd-hero-cat { font-size: var(--font-sm); opacity: 0.85; margin-top: 2px; }
+  .sd-hero-back {
+    position: absolute; top: var(--space-md); left: var(--space-md);
+    width: 36px; height: 36px; border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
+    border: none; color: #fff; font-size: 18px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .sd-hero-actions {
+    position: absolute; top: var(--space-md); right: var(--space-md);
+    display: flex; gap: 8px;
+  }
+  .sd-hero-action {
+    width: 36px; height: 36px; border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
+    border: none; color: #fff; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .sd-stats {
+    display: flex; margin: -16px var(--space-lg) 0; position: relative; z-index: 2;
+    background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .sd-stat {
+    flex: 1; padding: 12px 6px; text-align: center;
+    border-right: 1px solid var(--color-border);
+  }
+  .sd-stat:last-child { border-right: none; }
+  .sd-stat-val { font-size: var(--font-xl); font-weight: var(--weight-black); color: var(--color-dark); }
+  .sd-stat-label { font-size: var(--font-xs); color: var(--color-muted); margin-top: 2px; }
+  .sd-info { padding: var(--space-lg); }
+  .sd-info-row {
+    display: flex; align-items: flex-start; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .sd-info-row:last-child { border-bottom: none; }
+  .sd-info-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+  .sd-info-label { font-size: var(--font-md); color: var(--color-body); line-height: 1.5; }
+  .sd-info-sub { font-size: var(--font-sm); color: var(--color-muted); }
+  .sd-section { padding: 0 var(--space-lg) var(--space-lg); }
+  .sd-section-title {
+    font-size: var(--font-lg); font-weight: var(--weight-bold); color: var(--color-dark);
+    margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;
+  }
+  .sd-product-scroll {
+    display: flex; gap: var(--space-md); overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .sd-product-scroll::-webkit-scrollbar { display: none; }
+  .sd-product-card {
+    min-width: 130px; max-width: 130px; background: var(--color-surface);
+    border-radius: var(--radius-md); border: 1px solid var(--color-border);
+    overflow: hidden; flex-shrink: 0; transition: all var(--duration-fast);
+  }
+  .sd-product-card:active { transform: scale(0.97); }
+  .sd-product-img {
+    height: 90px; display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .sd-product-info { padding: 8px 10px; }
+  .sd-product-name { font-size: var(--font-sm); font-weight: var(--weight-semi); color: var(--color-dark); line-height: 1.3; }
+  .sd-product-price { font-size: var(--font-sm); font-weight: var(--weight-bold); color: var(--color-primary); margin-top: 4px; }
+  .sd-review-mini {
+    padding: var(--space-md); background: var(--color-bg-tint); border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+  }
+  .sd-review-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .sd-review-name { font-size: var(--font-sm); font-weight: var(--weight-semi); color: var(--color-dark); }
+  .sd-review-stars { font-size: var(--font-sm); color: var(--color-secondary); }
+  .sd-review-text { font-size: var(--font-sm); color: var(--color-body); line-height: 1.5; }
+
+  /* ================================================================
+     SCREEN: OFFERS / DEALS FEED (A6)
+     ================================================================ */
+  .offers-banner {
+    margin: var(--space-lg); border-radius: var(--radius-xl); overflow: hidden;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #FF6B35 100%);
+    padding: 24px var(--space-lg); color: #fff; position: relative;
+  }
+  .offers-banner-icon { font-size: 40px; margin-bottom: var(--space-sm); }
+  .offers-banner-title { font-size: var(--font-3xl); font-weight: var(--weight-black); }
+  .offers-banner-sub { font-size: var(--font-md); opacity: 0.9; margin-top: 4px; }
+  .offers-filter-row {
+    display: flex; gap: 8px; padding: 0 var(--space-lg) var(--space-md);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .offers-filter-row::-webkit-scrollbar { display: none; }
+  .offers-chip {
+    padding: 8px 16px; border-radius: var(--radius-full); font-size: var(--font-sm);
+    font-weight: var(--weight-semi); border: 1.5px solid var(--color-divider);
+    background: var(--color-surface); color: var(--color-body); cursor: pointer;
+    white-space: nowrap; flex-shrink: 0; transition: all var(--duration-fast);
+  }
+  .offers-chip.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+  .offer-card {
+    margin: 0 var(--space-lg) var(--space-md); border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border); overflow: hidden;
+    background: var(--color-surface); transition: all var(--duration-fast);
+  }
+  .offer-card:active { transform: scale(0.99); }
+  .offer-card-top {
+    display: flex; gap: var(--space-md); padding: var(--space-md) var(--space-lg);
+  }
+  .offer-card-icon {
+    width: 52px; height: 52px; border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .offer-card-info { flex: 1; }
+  .offer-card-store { font-size: var(--font-sm); color: var(--color-muted); }
+  .offer-card-title { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); margin-top: 2px; }
+  .offer-card-desc { font-size: var(--font-sm); color: var(--color-body); margin-top: 2px; }
+  .offer-card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px var(--space-lg); background: var(--color-bg-tint);
+    border-top: 1px solid var(--color-border);
+  }
+  .offer-card-code {
+    padding: 4px 12px; border-radius: var(--radius-sm);
+    border: 1.5px dashed var(--color-primary); font-size: var(--font-sm);
+    font-weight: var(--weight-bold); color: var(--color-primary); letter-spacing: 0.5px;
+  }
+  .offer-card-validity { font-size: var(--font-xs); color: var(--color-muted); }
+
+  /* ================================================================
+     SCREEN: LOCALITY SELECTOR (A7)
+     ================================================================ */
+  .loc-search {
+    margin: var(--space-lg); position: relative;
+  }
+  .loc-search input {
+    width: 100%; padding: 14px 16px 14px 42px; border: 1.5px solid var(--color-divider);
+    border-radius: var(--radius-lg); font-size: var(--font-md); background: var(--color-bg);
+    outline: none; transition: border-color var(--duration-fast);
+  }
+  .loc-search input:focus { border-color: var(--color-primary); }
+  .loc-search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; color: var(--color-subtle);
+  }
+  .loc-gps-row {
+    display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md) var(--space-lg);
+    cursor: pointer; transition: background var(--duration-fast);
+  }
+  .loc-gps-row:active { background: var(--color-bg-tint); }
+  .loc-gps-icon { color: var(--color-accent); font-size: 20px; }
+  .loc-gps-text { font-size: var(--font-md); font-weight: var(--weight-semi); color: var(--color-accent-dark); }
+  .loc-section-title {
+    padding: var(--space-sm) var(--space-lg); font-size: var(--font-xs);
+    font-weight: var(--weight-bold); color: var(--color-muted);
+    text-transform: uppercase; letter-spacing: 0.8px; background: var(--color-bg);
+  }
+  .loc-item {
+    display: flex; align-items: center; gap: var(--space-md);
+    padding: 14px var(--space-lg); border-bottom: 1px solid var(--color-border);
+    cursor: pointer; transition: background var(--duration-fast);
+  }
+  .loc-item:active { background: var(--color-bg-tint); }
+  .loc-item-icon { font-size: 18px; color: var(--color-muted); width: 24px; text-align: center; }
+  .loc-item-name { font-size: var(--font-md); font-weight: var(--weight-semi); color: var(--color-dark); }
+  .loc-item-sub { font-size: var(--font-sm); color: var(--color-muted); }
+  .loc-item-stores { margin-left: auto; font-size: var(--font-xs); color: var(--color-subtle); white-space: nowrap; }
+
+  /* ================================================================
+     C1: SPLASH / ONBOARDING
+     ================================================================ */
+  .onboard-screen {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; background: var(--color-surface);
+    position: relative; overflow: hidden;
+  }
+  .onboard-slides { flex: 1; position: relative; }
+  .onboard-slide {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 40px var(--space-2xl);
+    text-align: center; opacity: 0; transform: translateX(40px);
+    transition: all 400ms var(--ease-out); pointer-events: none;
+  }
+  .onboard-slide.active {
+    opacity: 1; transform: translateX(0); pointer-events: auto;
+  }
+  .onboard-slide.exit {
+    opacity: 0; transform: translateX(-40px);
+  }
+  .onboard-illust {
+    width: 180px; height: 180px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px; margin-bottom: var(--space-2xl);
+  }
+  .onboard-title {
+    font-size: var(--font-4xl); font-weight: var(--weight-black);
+    color: var(--color-dark); line-height: 1.3;
+  }
+  .onboard-desc {
+    font-size: var(--font-lg); color: var(--color-body); line-height: 1.6;
+    margin-top: var(--space-md); max-width: 320px;
+  }
+  .onboard-bottom {
+    padding: var(--space-2xl); padding-bottom: 40px;
+  }
+  .onboard-dots {
+    display: flex; justify-content: center; gap: 8px; margin-bottom: var(--space-xl);
+  }
+  .onboard-dot {
+    width: 8px; height: 8px; border-radius: var(--radius-full);
+    background: var(--color-divider); transition: all var(--duration-fast);
+  }
+  .onboard-dot.active {
+    width: 28px; background: var(--color-primary);
+  }
+  .onboard-skip {
+    position: absolute; top: 16px; right: 16px;
+    font-size: var(--font-md); color: var(--color-muted);
+    cursor: pointer; padding: 8px 16px; z-index: 5;
+  }
+  .onboard-brand {
+    position: absolute; top: 20px; left: 20px;
+    font-size: var(--font-xl); font-weight: var(--weight-black);
+    color: var(--color-primary); z-index: 5;
+  }
+
+  /* ================================================================
+     C2: LOCATION PERMISSION
+     ================================================================ */
+  .locperm-screen {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 40px var(--space-2xl);
+    text-align: center; background: var(--color-surface);
+  }
+  .locperm-illust {
+    width: 160px; height: 160px; border-radius: 50%;
+    background: var(--color-accent-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; margin-bottom: var(--space-2xl);
+    box-shadow: 0 0 0 16px rgba(59,130,246,0.08), 0 0 0 32px rgba(59,130,246,0.04);
+  }
+  .locperm-title {
+    font-size: var(--font-3xl); font-weight: var(--weight-black); color: var(--color-dark);
+  }
+  .locperm-desc {
+    font-size: var(--font-md); color: var(--color-body); line-height: 1.6;
+    margin-top: var(--space-md); max-width: 300px;
+  }
+  .locperm-benefits {
+    display: flex; flex-direction: column; gap: 10px;
+    margin: var(--space-2xl) 0; text-align: left; width: 100%; max-width: 300px;
+  }
+  .locperm-benefit {
+    display: flex; align-items: center; gap: 12px;
+    font-size: var(--font-md); color: var(--color-dark);
+  }
+  .locperm-benefit-icon { font-size: 20px; flex-shrink: 0; }
+  .locperm-manual {
+    margin-top: var(--space-xl); font-size: var(--font-md);
+    color: var(--color-primary); font-weight: var(--weight-semi);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     C1: SPLASH / ONBOARDING
+     ═══════════════════════════════════════════════════ -->
+<div id="a-onboard" class="screen active">
+  <div class="onboard-screen">
+    <div class="onboard-brand">ManaBazar</div>
+    <div class="onboard-skip" onclick="skipOnboarding()">Skip →</div>
+
+    <div class="onboard-slides">
+      <!-- Slide 1 -->
+      <div class="onboard-slide active" data-slide="0">
+        <div class="onboard-illust" style="background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-muted));">🏪</div>
+        <div class="onboard-title">Your Neighbourhood,<br>Now Online</div>
+        <div class="onboard-desc">Discover pharmacies, restaurants, grocery stores, bakeries & more — all near you in Vijayawada</div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="onboard-slide" data-slide="1">
+        <div class="onboard-illust" style="background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted));">🛒</div>
+        <div class="onboard-title">Delivered to Your Door<br>in Minutes</div>
+        <div class="onboard-desc">Order via app or WhatsApp. Track live. Pay with UPI or cash on delivery — your choice</div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="onboard-slide" data-slide="2">
+        <div class="onboard-illust" style="background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary-muted));">🎉</div>
+        <div class="onboard-title">Save More,<br>Support Local</div>
+        <div class="onboard-desc">Exclusive deals, bundle offers & loyalty rewards. Zero middlemen = better prices for you</div>
+      </div>
+    </div>
+
+    <div class="onboard-bottom">
+      <div class="onboard-dots">
+        <div class="onboard-dot active" data-dot="0"></div>
+        <div class="onboard-dot" data-dot="1"></div>
+        <div class="onboard-dot" data-dot="2"></div>
+      </div>
+      <button class="btn btn--primary btn--full btn--lg" id="onboardBtn" onclick="nextSlide()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     C2: LOCATION PERMISSION
+     ═══════════════════════════════════════════════════ -->
+<div id="a-locperm" class="screen">
+  <div class="locperm-screen">
+    <div class="locperm-illust">📍</div>
+    <div class="locperm-title">Where are you?</div>
+    <div class="locperm-desc">Allow location access to find the best stores, offers and fastest delivery near you</div>
+
+    <div class="locperm-benefits">
+      <div class="locperm-benefit"><span class="locperm-benefit-icon">🏪</span> Find stores within walking distance</div>
+      <div class="locperm-benefit"><span class="locperm-benefit-icon">⚡</span> Get accurate delivery time estimates</div>
+      <div class="locperm-benefit"><span class="locperm-benefit-icon">🎯</span> See deals specific to your area</div>
+    </div>
+
+    <button class="btn btn--primary btn--full btn--lg" onclick="allowLocation()">📍 Allow Location Access</button>
+    <div class="locperm-manual" onclick="go('locality')">Or enter location manually →</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: HOME
+     ═══════════════════════════════════════════════════ -->
+<div id="a-home" class="screen">
+
+<!-- ── 1. HEADER ── -->
+<header class="agg-header">
+  <div class="agg-brand">ManaBazar</div>
+  <div class="agg-location" onclick="go('locality')">
+    <span class="agg-location-pin">📍</span>
+    <span class="agg-location-name">Labbipet, Vijayawada</span>
+    <span class="agg-location-arrow">▼</span>
+  </div>
+</header>
+
+<!-- ── 2. SEARCH ── -->
+<div class="agg-search">
+  <span class="agg-search-icon">🔍</span>
+  <input class="agg-search-input" type="text" placeholder="Search stores, products, medicines..." onfocus="openSearch()" readonly>
+</div>
+
+<!-- ── 3. CATEGORIES ── -->
+<div id="cat-pills" class="agg-categories hide-scroll">
+  <div class="agg-cat-pill active" data-cat="all" onclick="filterCat('all')"><div class="agg-cat-icon">🛒</div><div class="agg-cat-label">All</div></div>
+  <div class="agg-cat-pill" data-cat="pharmacy" onclick="filterCat('pharmacy')"><div class="agg-cat-icon">💊</div><div class="agg-cat-label">Pharmacy</div></div>
+  <div class="agg-cat-pill" data-cat="restaurant" onclick="filterCat('restaurant')"><div class="agg-cat-icon">🍽️</div><div class="agg-cat-label">Restaurant</div></div>
+  <div class="agg-cat-pill" data-cat="meat" onclick="filterCat('meat')"><div class="agg-cat-icon">🥩</div><div class="agg-cat-label">Meat</div></div>
+  <div class="agg-cat-pill" data-cat="bakery" onclick="filterCat('bakery')"><div class="agg-cat-icon">🍰</div><div class="agg-cat-label">Bakery</div></div>
+  <div class="agg-cat-pill" data-cat="grocery" onclick="filterCat('grocery')"><div class="agg-cat-icon">🏪</div><div class="agg-cat-label">Grocery</div></div>
+  <div class="agg-cat-pill" data-cat="flowers" onclick="filterCat('flowers')"><div class="agg-cat-icon">🌸</div><div class="agg-cat-label">Flowers</div></div>
+  <div class="agg-cat-pill" data-cat="fashion" onclick="filterCat('fashion')"><div class="agg-cat-icon">👗</div><div class="agg-cat-label">Fashion</div></div>
+</div>
+
+<!-- ── 4. FEATURED ── -->
+<div id="sec-featured" data-cat-section="meat">
+  <a href="#" onclick="event.preventDefault();go('storedetail')">
+    <div class="featured-banner">
+      <div class="featured-tag">Featured</div>
+      <div class="featured-store-row">
+        <div class="featured-store-logo">🥩</div>
+        <div><div class="featured-store-name">Bismillah Fresh Meats</div><div class="featured-store-cat">Meat & Poultry · Halal Certified</div></div>
+      </div>
+      <div class="featured-store-meta"><span>★ 4.8 (245)</span><span>·</span><span>0.8 km</span><span>·</span><span>20 min delivery</span></div>
+      <div class="featured-store-offer">🎉 Today: Free delivery on orders above ₹500</div>
+    </div>
+  </a>
+</div>
+
+<!-- ── 5. QUICK FILTERS ── -->
+<div class="quick-filters hide-scroll" id="quick-filters">
+  <span class="qf-chip active" onclick="toggleFilter(this)">Near Me</span>
+  <span class="qf-chip" onclick="toggleFilter(this)">Free Delivery</span>
+  <span class="qf-chip" onclick="toggleFilter(this)">Top Rated</span>
+  <span class="qf-chip" onclick="toggleFilter(this)">Open Now</span>
+  <span class="qf-chip" onclick="toggleFilter(this)">Offers</span>
+  <span class="qf-chip" onclick="toggleFilter(this)">New</span>
+</div>
+
+<!-- ── 6. PHARMACIES ── -->
+<div id="sec-pharmacy" data-cat-section="pharmacy">
+  <div class="sec-header">
+    <div><div class="sec-title">Pharmacies near Labbipet</div><div class="sec-subtitle">12 stores within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('pharmacy')">See all →</span>
+  </div>
+  <div class="mc-scroll hide-scroll">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted));">💊
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span><span class="mc-badge mc-badge--fast">⚡ 20 min</span><span class="mc-badge mc-badge--popular">🔥 Popular</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Sri Lakshmi Pharmacy</div>
+        <div class="mc-category">Pharmacy & Wellness · Labbipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.6 (128)</span><span>📍 1.2 km</span><span>₹99 min</span></div>
+        <div class="mc-delivery-tag">🚚 Home Delivery · 📱 WhatsApp Orders</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-accent-light), #BFDBFE);">💊
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">MedPlus Pharmacy</div>
+        <div class="mc-category">Pharmacy · Governorpet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.2 (89)</span><span>📍 2.1 km</span><span>₹149 min</span></div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary-muted));">💊
+        <span class="mc-sponsored">Sponsored</span>
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span><span class="mc-badge mc-badge--loyalty">🎁 Rewards</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Vijaya Health Hub</div>
+        <div class="mc-category">Pharmacy & Diagnostics · Brodipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.4 (67)</span><span>📍 2.8 km</span><span>₹199 min</span></div>
+        <div class="mc-offer-tag">🎉 10% OFF on first order</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #E0E7FF, #C7D2FE);">💊
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--fast">⚡ 15 min</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Sai Durga Medical</div>
+        <div class="mc-category">Pharmacy · Patamata</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.0 (42)</span><span>📍 1.5 km</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 7. SOFTWARE ── -->
+<div class="sw-section" id="sec-software">
+  <div class="sw-section-header">
+    <span class="sw-section-title">Our Business Products</span>
+    <span class="sw-section-link">View all →</span>
+  </div>
+  <div class="sw-scroll hide-scroll">
+    <div class="sw-card"><div class="sw-card-top"><div class="sw-icon sw-icon--pharma">💊</div><div><div class="sw-name">YouPharma</div><div class="sw-price">from ₹1,500/mo</div></div></div><div class="sw-desc">Pharmacy billing with GST, batch tracking, expiry alerts & drug license compliance. Telugu available.</div><button class="sw-cta">Learn More →</button></div>
+    <div class="sw-card"><div class="sw-card-top"><div class="sw-icon sw-icon--retail">🏪</div><div><div class="sw-name">YouRetail</div><div class="sw-price">from ₹1,200/mo</div></div></div><div class="sw-desc">POS billing, inventory, barcode scanning, e-Invoice & GSTR-1 for retail stores.</div><button class="sw-cta">Learn More →</button></div>
+    <div class="sw-card"><div class="sw-card-top"><div class="sw-icon sw-icon--resto">🍽️</div><div><div class="sw-name">YouResto</div><div class="sw-price">from ₹1,000/mo</div></div></div><div class="sw-desc">KOT, table management, menu builder & GST billing for restaurants and cafes.</div><button class="sw-cta">Learn More →</button></div>
+  </div>
+</div>
+
+<!-- ── 8. RESTAURANTS ── -->
+<div id="sec-restaurant" data-cat-section="restaurant">
+  <div class="sec-header">
+    <div><div class="sec-title">Restaurants near Labbipet</div><div class="sec-subtitle">8 restaurants within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('restaurant')">See all →</span>
+  </div>
+  <div class="mc-scroll hide-scroll">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-primary-muted), var(--color-primary-ring));">🍽️
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span><span class="mc-badge mc-badge--popular">🔥 Popular</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Andhra Spice Kitchen</div>
+        <div class="mc-category">Telugu Cuisine · Labbipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.7 (312)</span><span>📍 0.5 km</span><span>₹150 min</span></div>
+        <div class="mc-delivery-tag">🚚 Free delivery above ₹300</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary-muted));">🍕
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--fast">⚡ 25 min</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Pizza Corner Express</div>
+        <div class="mc-category">Pizza & Fast Food · Governorpet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.3 (156)</span><span>📍 1.8 km</span></div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted));">🍛
+        <span class="mc-sponsored">Sponsored</span>
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span><span class="mc-badge mc-badge--loyalty">🎁 Rewards</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Bawarchi Biryani</div>
+        <div class="mc-category">Biryani & Kebabs · Brodipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.5 (203)</span><span>📍 3.0 km</span><span>₹200 min</span></div>
+        <div class="mc-offer-tag">🎉 20% OFF — Grand opening week!</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 9. MEAT & POULTRY ── -->
+<div id="sec-meat" data-cat-section="meat">
+  <div class="sec-header">
+    <div><div class="sec-title">Meat & Poultry</div><div class="sec-subtitle">6 stores within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('meat')">See all →</span>
+  </div>
+  <div class="mc-scroll hide-scroll">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #FECDD3, #FDA4AF);">🥩
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span><span class="mc-badge mc-badge--popular">🔥 Popular</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Bismillah Fresh Meats</div>
+        <div class="mc-category">Meat & Poultry · Halal · Labbipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.8 (245)</span><span>📍 0.8 km</span></div>
+        <div class="mc-delivery-tag">🚚 Free delivery above ₹500</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary-muted));">🍗
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--fast">⚡ 30 min</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Licious Fresh</div>
+        <div class="mc-category">Chicken & Fish · Governorpet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.3 (98)</span><span>📍 1.6 km</span></div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted));">🐟
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Krishna Fish Market</div>
+        <div class="mc-category">Fresh Fish & Prawns · Patamata</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.1 (56)</span><span>📍 2.4 km</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 10. BAKERY ── -->
+<div id="sec-bakery" data-cat-section="bakery">
+  <div class="sec-header">
+    <div><div class="sec-title">Bakery & Sweets</div><div class="sec-subtitle">5 stores within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('bakery')">See all →</span>
+  </div>
+  <div class="mc-scroll hide-scroll">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #FDE68A, #FCD34D);">🍰
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span><span class="mc-badge mc-badge--popular">🔥 Popular</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Sri Krishna Sweets</div>
+        <div class="mc-category">Sweets & Bakery · Labbipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.7 (310)</span><span>📍 0.6 km</span></div>
+        <div class="mc-offer-tag">🎉 Festival special: 15% off on boxes</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #FBCFE8, #F9A8D4);">🧁
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--fast">⚡ 20 min</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Cake Walk</div>
+        <div class="mc-category">Cakes & Pastries · Brodipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.4 (87)</span><span>📍 1.9 km</span></div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, var(--color-secondary-light), #FDE68A);">🍩
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Karachi Bakery</div>
+        <div class="mc-category">Bakery · Governorpet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.5 (178)</span><span>📍 2.2 km</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 11. FLOWERS ── -->
+<div id="sec-flowers" data-cat-section="flowers">
+  <div class="sec-header">
+    <div><div class="sec-title">Flowers & Pooja Items</div><div class="sec-subtitle">4 stores within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('flowers')">See all →</span>
+  </div>
+  <div class="mc-scroll hide-scroll">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #FECDD3, #FBB6CE);">🌸
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Lakshmi Flower Shop</div>
+        <div class="mc-category">Flowers & Garlands · Labbipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.5 (64)</span><span>📍 0.3 km</span></div>
+        <div class="mc-delivery-tag">📱 WhatsApp Orders Available</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0);">🪷
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--fast">⚡ 15 min</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Sai Pooja Store</div>
+        <div class="mc-category">Pooja Items & Flowers · Patamata</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.3 (41)</span><span>📍 1.4 km</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 12. FASHION ── -->
+<div id="sec-fashion" data-cat-section="fashion">
+  <div class="sec-header">
+    <div><div class="sec-title">Fashion & Clothing</div><div class="sec-subtitle">3 stores within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('fashion')">See all →</span>
+  </div>
+  <div class="mc-scroll hide-scroll">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #E0E7FF, #C7D2FE);">👗
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--popular">🔥 Popular</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Kalanjali Silks</div>
+        <div class="mc-category">Sarees & Dress Materials · MG Road</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.6 (215)</span><span>📍 1.1 km</span></div>
+        <div class="mc-offer-tag">🎉 Wedding season: 20% off silk sarees</div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-card">
+      <div class="mc-card-img" style="background: linear-gradient(135deg, #DBEAFE, #93C5FD);">👔
+        <div class="mc-card-badges"><span class="mc-badge mc-badge--verified">✓ Verified</span></div>
+      </div>
+      <div class="mc-card-body">
+        <div class="mc-name">Style Hub Men's Wear</div>
+        <div class="mc-category">Men's Fashion · Brodipet</div>
+        <div class="mc-meta"><span><span class="mc-meta-star">★</span> 4.2 (92)</span><span>📍 2.5 km</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 13. GROCERY (Vertical) ── -->
+<div id="sec-grocery" data-cat-section="grocery">
+  <div class="sec-header">
+    <div><div class="sec-title">Grocery & General Stores</div><div class="sec-subtitle">15 stores within 3 km</div></div>
+    <span class="sec-see-all" onclick="showSeeAll('grocery')">See all →</span>
+  </div>
+  <div class="mc-list">
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-list-card">
+      <div class="mlc-img" style="background: var(--color-success-light);">🏪</div>
+      <div class="mlc-body">
+        <div class="mlc-name">Lakshmi General Store</div>
+        <div class="mlc-category">Grocery · Labbipet</div>
+        <div class="mlc-badges"><span class="mlc-badge mlc-badge--verified">✓ Verified</span><span class="mlc-badge mlc-badge--fast">⚡ 15 min</span><span class="mlc-badge mlc-badge--whatsapp">📱 WhatsApp</span></div>
+        <div class="mlc-meta"><span>★ 4.3 (78)</span><span>📍 0.4 km</span></div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-list-card">
+      <span class="mlc-sponsored">Sponsored</span>
+      <div class="mlc-img" style="background: var(--color-secondary-light);">🏪</div>
+      <div class="mlc-body">
+        <div class="mlc-name">Srinivasa Super Market</div>
+        <div class="mlc-category">Supermarket · Governorpet</div>
+        <div class="mlc-badges"><span class="mlc-badge mlc-badge--verified">✓ Verified</span><span class="mlc-badge mlc-badge--popular">🔥 Popular</span></div>
+        <div class="mlc-meta"><span>★ 4.5 (134)</span><span>📍 1.9 km</span><span>₹199 min</span></div>
+      </div>
+    </a>
+    <a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-list-card">
+      <div class="mlc-img" style="background: var(--color-accent-light);">🏪</div>
+      <div class="mlc-body">
+        <div class="mlc-name">Naveen Provisions</div>
+        <div class="mlc-category">Grocery · Patamata</div>
+        <div class="mlc-badges"><span class="mlc-badge mlc-badge--verified">✓ Verified</span></div>
+        <div class="mlc-meta"><span>★ 4.0 (34)</span><span>📍 2.3 km</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── 14. REGISTER CTA ── -->
+<div class="register-cta">
+  <div class="register-cta-icon">🏪</div>
+  <div class="register-cta-title">Own a business in Vijayawada?</div>
+  <div class="register-cta-desc">List your store for FREE and reach thousands of customers.<br>Or manage your entire business with our software products.</div>
+  <div class="register-cta-buttons">
+    <button class="btn btn--primary" onclick="go('merchants')">List Store FREE</button>
+    <button class="btn btn--secondary" onclick="go('merchants')">See Software →</button>
+  </div>
+  <div class="register-cta-stats">
+    <div><strong>200+</strong>Merchants</div>
+    <div><strong>5,000+</strong>Customers</div>
+    <div><strong>₹15L+</strong>Monthly GMV</div>
+  </div>
+</div>
+
+<!-- ── 15. FOOTER ── -->
+<div class="agg-footer">
+  <div class="agg-footer-brand">ManaBazar</div>
+  <div class="agg-footer-tagline">Discover local stores in Vijayawada & Guntur</div>
+  <div class="agg-footer-links">
+    <a onclick="go('about')">About</a>
+    <a onclick="go('merchants')">For Merchants</a>
+    <a onclick="go('help')">Help</a>
+    <a onclick="go('privacy')">Privacy</a>
+    <a onclick="go('terms')">Terms</a>
+  </div>
+  <div class="agg-footer-copy">&copy; 2026 ManaBazar. All rights reserved.</div>
+</div>
+
+<div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     INLINE SEARCH OVERLAY (same screen, not separate page)
+     ═══════════════════════════════════════════════════ -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-overlay-bar">
+    <input type="text" id="searchInput" placeholder="Search stores, products, medicines..." oninput="doSearch(this.value)">
+    <span class="search-overlay-cancel" onclick="closeSearch()">Cancel</span>
+  </div>
+
+  <!-- Recent Searches (shown when empty) -->
+  <div id="search-recent" style="padding: var(--space-lg);">
+    <div style="font-size: var(--font-lg); font-weight: var(--weight-bold); color: var(--color-dark); margin-bottom: 12px;">Recent Searches</div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 0;" onclick="fillSearch('Paracetamol')">
+        <span style="color: var(--color-subtle);">🕐</span><span style="font-size: var(--font-md); color: var(--color-body);">Paracetamol</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 0;" onclick="fillSearch('Chicken biryani')">
+        <span style="color: var(--color-subtle);">🕐</span><span style="font-size: var(--font-md); color: var(--color-body);">Chicken biryani</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 0;" onclick="fillSearch('Rice 25kg')">
+        <span style="color: var(--color-subtle);">🕐</span><span style="font-size: var(--font-md); color: var(--color-body);">Rice 25kg</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 0;" onclick="fillSearch('Birthday cake')">
+        <span style="color: var(--color-subtle);">🕐</span><span style="font-size: var(--font-md); color: var(--color-body);">Birthday cake</span>
+      </div>
+    </div>
+    <div style="margin-top: var(--space-xl);">
+      <div style="font-size: var(--font-lg); font-weight: var(--weight-bold); color: var(--color-dark); margin-bottom: 12px;">Popular Categories</div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span class="qf-chip" onclick="fillSearch('Pharmacy')">💊 Pharmacy</span>
+        <span class="qf-chip" onclick="fillSearch('Restaurant')">🍽️ Restaurant</span>
+        <span class="qf-chip" onclick="fillSearch('Grocery')">🏪 Grocery</span>
+        <span class="qf-chip" onclick="fillSearch('Meat')">🥩 Meat</span>
+        <span class="qf-chip" onclick="fillSearch('Bakery')">🍰 Bakery</span>
+        <span class="qf-chip" onclick="fillSearch('Flowers')">🌸 Flowers</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results (shown when typing) -->
+  <div id="search-results" style="display: none;">
+    <div class="search-results-count" id="search-count" style="padding: var(--space-md) var(--space-lg); font-size: var(--font-sm); color: var(--color-muted); background: var(--color-bg);"></div>
+    <div class="mc-list" id="search-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: SEE ALL STORES
+     ═══════════════════════════════════════════════════ -->
+<div id="a-seeall" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="go('home')">←</button>
+    <div><div class="page-title" id="seeall-title">All Stores</div><div class="page-subtitle" id="seeall-subtitle">Near Labbipet, Vijayawada</div></div>
+  </div>
+  <div class="seeall-filters hide-scroll">
+    <span class="sa-chip" onclick="toggleSaFilter(this)">Sort by <span class="sa-chip-arrow">▼</span></span>
+    <span class="sa-chip active" onclick="toggleSaFilter(this)">Nearest First</span>
+    <span class="sa-chip" onclick="toggleSaFilter(this)">Top Rated</span>
+    <span class="sa-chip" onclick="toggleSaFilter(this)">Open Now</span>
+    <span class="sa-chip" onclick="toggleSaFilter(this)">Free Delivery</span>
+    <span class="sa-chip" onclick="toggleSaFilter(this)">Offers</span>
+    <span class="sa-chip" onclick="toggleSaFilter(this)">WhatsApp Orders</span>
+  </div>
+  <div class="seeall-header-info" id="seeall-info">Showing stores sorted by distance</div>
+  <div class="mc-list" id="seeall-list" style="padding-top: var(--space-md);"></div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: ORDERS (empty state)
+     ═══════════════════════════════════════════════════ -->
+<div id="a-orders" class="screen">
+  <div class="page-header">
+    <div><div class="page-title">My Orders</div><div class="page-subtitle">Track your order history</div></div>
+  </div>
+  <div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <div class="empty-state-title">No orders yet</div>
+    <div class="empty-state-desc">When you place an order from any store, it will appear here. Browse stores and start shopping!</div>
+    <button class="btn btn--primary" onclick="go('home')">Browse Stores</button>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: ACCOUNT
+     ═══════════════════════════════════════════════════ -->
+<div id="a-account" class="screen">
+  <div class="page-header">
+    <div><div class="page-title">My Account</div></div>
+  </div>
+  <div class="account-header-card">
+    <div class="account-avatar">👤</div>
+    <div style="font-size: var(--font-2xl); font-weight: var(--weight-bold); color: var(--color-dark);">Guest User</div>
+    <div style="font-size: var(--font-sm); color: var(--color-muted); margin-top: 4px;">Login to track orders & get offers</div>
+    <button class="btn btn--primary btn--full" style="margin-top: 16px;">Login with OTP</button>
+  </div>
+  <div class="account-menu">
+    <div class="account-menu-item" onclick="go('orders')">
+      <span class="account-menu-icon">📦</span>
+      <div class="account-menu-text"><div class="account-menu-label">My Orders</div><div class="account-menu-desc">Track & reorder from past purchases</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item">
+      <span class="account-menu-icon">📍</span>
+      <div class="account-menu-text"><div class="account-menu-label">Saved Addresses</div><div class="account-menu-desc">Manage delivery addresses</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item" onclick="go('offers')">
+      <span class="account-menu-icon">🎟️</span>
+      <div class="account-menu-text"><div class="account-menu-label">Offers & Deals</div><div class="account-menu-desc">View available offers & discounts</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item" onclick="go('help')">
+      <span class="account-menu-icon">❓</span>
+      <div class="account-menu-text"><div class="account-menu-label">Help & Support</div><div class="account-menu-desc">FAQs, contact us, report issues</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item" onclick="go('about')">
+      <span class="account-menu-icon">ℹ️</span>
+      <div class="account-menu-text"><div class="account-menu-label">About ManaBazar</div><div class="account-menu-desc">Our story, mission & team</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item">
+      <span class="account-menu-icon">🌐</span>
+      <div class="account-menu-text"><div class="account-menu-label">Language</div><div class="account-menu-desc">English · తెలుగు</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: ABOUT
+     ═══════════════════════════════════════════════════ -->
+<div id="a-about" class="screen info-page">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div><div class="page-title">About Us</div></div>
+  </div>
+  <div class="info-content">
+    <h2>ManaBazar</h2>
+    <div class="info-highlight">Local First. Digital Always.</div>
+    <p>ManaBazar is Vijayawada's own hyperlocal discovery and commerce platform. We connect customers with trusted local stores — pharmacies, restaurants, grocery shops, bakeries, meat shops, and more — all within your neighbourhood.</p>
+
+    <h3>Our Mission</h3>
+    <p>To digitise every local business in Andhra Pradesh and give them the tools to compete with national chains — starting with Vijayawada and Guntur. We believe local stores are the backbone of our communities, and they deserve modern technology at affordable prices.</p>
+
+    <h3>How It Works</h3>
+    <ul>
+      <li><strong>For Customers:</strong> Discover stores near you, browse products, place orders via WhatsApp or online, and get home delivery — all from shops you already know and trust.</li>
+      <li><strong>For Merchants:</strong> Get a free online storefront, appear on our aggregator, accept WhatsApp orders, and manage your business with our optional software tools (YouPharma, YouRetail, YouResto).</li>
+    </ul>
+
+    <h3>Why Local?</h3>
+    <p>When you order from a local store, the money stays in your community. The store owner is your neighbour. The delivery is faster because they are closer. And the products are fresh because they are sourced locally. We are building technology to strengthen these existing relationships, not replace them.</p>
+
+    <h3>Our Products</h3>
+    <ul>
+      <li><strong>ManaBazar Storefront</strong> — Free online store for any local merchant</li>
+      <li><strong>ManaBazar Aggregator</strong> — Discover stores by category, location, and offers</li>
+      <li><strong>YouPharma</strong> — Complete pharmacy management with GST, batch tracking, and drug license compliance</li>
+      <li><strong>YouRetail</strong> — POS billing, inventory, barcode scanning, and GSTR-1 for retail stores</li>
+      <li><strong>YouResto</strong> — KOT, table management, and menu builder for restaurants</li>
+    </ul>
+
+    <h3>Contact</h3>
+    <p>Based in Vijayawada, Andhra Pradesh, India.<br>
+    Email: hello@yourplatform.in<br>
+    WhatsApp: +91 89289 56128</p>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: FOR MERCHANTS
+     ═══════════════════════════════════════════════════ -->
+<div id="a-merchants" class="screen info-page">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div><div class="page-title">For Merchants</div></div>
+  </div>
+  <div class="info-content">
+    <h2>Grow Your Business with ManaBazar</h2>
+    <div class="info-highlight">Free listing. Zero commission. Your customers, your data.</div>
+
+    <div style="margin: 20px 0;">
+      <div class="merchant-benefit">
+        <div class="merchant-benefit-icon">🏪</div>
+        <div><div class="merchant-benefit-title">Free Online Storefront</div><div class="merchant-benefit-desc">Get your own branded store page with product catalogue, store info, offers, and customer reviews. Share via WhatsApp, social media, or QR code.</div></div>
+      </div>
+      <div class="merchant-benefit">
+        <div class="merchant-benefit-icon">📍</div>
+        <div><div class="merchant-benefit-title">Appear on the Aggregator</div><div class="merchant-benefit-desc">Customers in your area discover your store when browsing by category, location, or searching for specific products.</div></div>
+      </div>
+      <div class="merchant-benefit">
+        <div class="merchant-benefit-icon">📱</div>
+        <div><div class="merchant-benefit-title">WhatsApp Orders</div><div class="merchant-benefit-desc">Receive orders directly on WhatsApp. No app required for your customers. Pre-filled messages with order details and address.</div></div>
+      </div>
+      <div class="merchant-benefit">
+        <div class="merchant-benefit-icon">🎉</div>
+        <div><div class="merchant-benefit-title">Run Offers & Discounts</div><div class="merchant-benefit-desc">Create percentage off, flat discounts, BOGO, and bundle deals. Appear in the Offers feed and attract more customers.</div></div>
+      </div>
+      <div class="merchant-benefit">
+        <div class="merchant-benefit-icon">📊</div>
+        <div><div class="merchant-benefit-title">Business Insights</div><div class="merchant-benefit-desc">See how many customers viewed your store, which products are popular, and track your orders — all from one dashboard.</div></div>
+      </div>
+    </div>
+
+    <h3>Optional Paid Software</h3>
+    <p>Take your business to the next level with our vertical software products:</p>
+    <ul>
+      <li><strong>YouPharma (₹1,500/mo)</strong> — Complete pharmacy management: GST billing, batch & expiry tracking, drug license compliance, purchase orders, inventory alerts. Telugu interface available.</li>
+      <li><strong>YouRetail (₹1,200/mo)</strong> — Retail POS: barcode billing, inventory management, e-Invoice, GSTR-1 filing, customer loyalty points, purchase management.</li>
+      <li><strong>YouResto (₹1,000/mo)</strong> — Restaurant management: KOT printing, table management, menu builder, GST billing, online ordering integration.</li>
+    </ul>
+
+    <h3>How to Register</h3>
+    <ul>
+      <li>Step 1: Share your store name, category, and location</li>
+      <li>Step 2: Upload products or we help you set up your catalogue</li>
+      <li>Step 3: Your store goes live on ManaBazar — start receiving orders!</li>
+    </ul>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <button class="btn btn--primary btn--lg btn--full" onclick="window.open('https://wa.me/918928956128?text=Hi%2C%20I%20want%20to%20register%20my%20store%20on%20ManaBazar.%20Please%20help%20me%20get%20started.','_blank')">Register Your Store — It's FREE</button>
+      <div style="margin-top: 12px;">
+        <button class="btn btn--whatsapp btn--full" onclick="window.open('https://wa.me/918928956128?text=Hi%2C%20I%20have%20a%20question%20about%20ManaBazar%20for%20merchants.','_blank')">📱 Contact Us on WhatsApp</button>
+      </div>
+    </div>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: HELP
+     ═══════════════════════════════════════════════════ -->
+<div id="a-help" class="screen info-page">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div><div class="page-title">Help & Support</div></div>
+  </div>
+  <div class="info-content">
+    <h2>Frequently Asked Questions</h2>
+
+    <div id="faq-list">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I place an order?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Browse stores near you, select products, and add them to your cart. At checkout, choose your delivery address and payment method (COD or UPI). You can also place orders via WhatsApp — the order details are pre-filled for you.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is there a delivery charge?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Delivery charges are set by each store individually. Many stores offer free delivery above a minimum order value (shown on their store page). Look for the "Free Delivery" tag when browsing stores.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I track my order?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">After placing an order, you will receive updates via WhatsApp from the store. You can also check order status in the "My Orders" section. Orders go through these stages: Placed → Confirmed → Preparing → Out for Delivery → Delivered.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What payment methods are accepted?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Currently we support Cash on Delivery (COD) and UPI direct-to-merchant payments (Google Pay, PhonePe, Paytm). Card payments will be available in a future update.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I apply a coupon or discount?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">During checkout, tap "Apply Coupon" to see available offers for that store. You can enter a coupon code manually or browse available discounts. The discount will be applied to your cart total automatically.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I cancel or modify my order?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">You can cancel or modify your order before the store confirms it. Contact the store directly via WhatsApp (available on their store page) for any changes after confirmation.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I register my store on ManaBazar?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Registration is free! Tap "For Merchants" in the footer, or contact us on WhatsApp. We will help you set up your catalogue and get your store live within 24 hours.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is ManaBazar available in Telugu?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Yes! We support both English and Telugu (తెలుగు). You can switch the language from your Account settings. Our software products (YouPharma, YouRetail, YouResto) also support Telugu.</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 24px;">Still need help?</h3>
+    <p>Our support team is available Monday to Saturday, 9 AM to 9 PM.</p>
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+      <button class="btn btn--whatsapp btn--full" onclick="window.open('https://wa.me/918928956128?text=Hi%2C%20I%20need%20help%20with%20ManaBazar.','_blank')">📱 Chat on WhatsApp</button>
+      <button class="btn btn--ghost btn--full" onclick="window.open('mailto:support@yourplatform.in')">📧 Email: support@yourplatform.in</button>
+      <button class="btn btn--ghost btn--full" onclick="window.open('tel:+918928956128')">📞 Call: +91 89289 56128</button>
+    </div>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: PRIVACY POLICY
+     ═══════════════════════════════════════════════════ -->
+<div id="a-privacy" class="screen info-page">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div><div class="page-title">Privacy Policy</div></div>
+  </div>
+  <div class="info-content">
+    <p style="color: var(--color-muted); font-size: var(--font-sm);">Last updated: April 2026</p>
+
+    <h2>1. Information We Collect</h2>
+    <p>When you use ManaBazar, we collect information that you provide directly:</p>
+    <ul>
+      <li><strong>Account Information:</strong> Phone number, name, and delivery addresses when you register or place orders.</li>
+      <li><strong>Order Information:</strong> Products ordered, store details, payment method, delivery address, and order history.</li>
+      <li><strong>Location Data:</strong> Your approximate location (with your permission) to show nearby stores and calculate delivery distance.</li>
+      <li><strong>Device Information:</strong> Device type, browser, and app version for troubleshooting and improving our service.</li>
+    </ul>
+
+    <h2>2. How We Use Your Information</h2>
+    <ul>
+      <li>To show you relevant stores and products near your location</li>
+      <li>To process and deliver your orders</li>
+      <li>To send order updates and delivery notifications via WhatsApp/SMS</li>
+      <li>To improve our platform and personalise your experience</li>
+      <li>To help merchants understand their customer base (aggregated, not individual data)</li>
+    </ul>
+
+    <h2>3. Information Sharing</h2>
+    <p>We share your information only as follows:</p>
+    <ul>
+      <li><strong>With Merchants:</strong> Your name, phone number, and delivery address are shared with the store you order from, solely for order fulfilment.</li>
+      <li><strong>WhatsApp:</strong> When you choose WhatsApp ordering, your message is sent directly to the merchant's WhatsApp number.</li>
+      <li><strong>We do NOT sell</strong> your personal information to third parties.</li>
+      <li><strong>We do NOT share</strong> your data with advertisers or data brokers.</li>
+    </ul>
+
+    <h2>4. Data Storage & Security</h2>
+    <p>Your data is stored securely on servers in India. We use industry-standard encryption for data in transit (HTTPS/TLS) and at rest. Payment information is not stored on our servers — UPI payments are processed directly between you and the merchant.</p>
+
+    <h2>5. Your Rights</h2>
+    <ul>
+      <li>You can request a copy of your data at any time</li>
+      <li>You can request deletion of your account and associated data</li>
+      <li>You can opt out of promotional messages</li>
+      <li>You can revoke location permission from your device settings</li>
+    </ul>
+
+    <h2>6. Contact</h2>
+    <p>For privacy-related queries, contact us at:<br>
+    Email: privacy@yourplatform.in<br>
+    WhatsApp: +91 89289 56128</p>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: TERMS OF SERVICE
+     ═══════════════════════════════════════════════════ -->
+<div id="a-terms" class="screen info-page">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div><div class="page-title">Terms of Service</div></div>
+  </div>
+  <div class="info-content">
+    <p style="color: var(--color-muted); font-size: var(--font-sm);">Last updated: April 2026</p>
+
+    <h2>1. About ManaBazar</h2>
+    <p>ManaBazar is a hyperlocal discovery and commerce platform operated in Vijayawada and Guntur, Andhra Pradesh. By using our platform, you agree to these terms.</p>
+
+    <h2>2. Platform Role</h2>
+    <p>ManaBazar acts as a technology intermediary connecting customers with local merchants. We are <strong>not a seller</strong> — all products are sold directly by the respective merchants. We facilitate discovery, ordering, and communication between customers and stores.</p>
+
+    <h2>3. Orders & Payments</h2>
+    <ul>
+      <li>Orders placed via ManaBazar are confirmed by the merchant, not by us.</li>
+      <li>Prices, availability, and delivery times are set by individual merchants.</li>
+      <li>Cash on Delivery (COD) payments are collected by the merchant or their delivery partner.</li>
+      <li>UPI payments go directly to the merchant's account.</li>
+      <li>ManaBazar does not collect or process payments on behalf of merchants.</li>
+    </ul>
+
+    <h2>4. WhatsApp Orders</h2>
+    <p>When you use the WhatsApp ordering feature, your order message is sent directly to the merchant's WhatsApp number. The order fulfilment, communication, and any disputes are handled directly between you and the merchant. ManaBazar is not responsible for orders placed via WhatsApp.</p>
+
+    <h2>5. Merchant Responsibilities</h2>
+    <ul>
+      <li>Merchants are responsible for the accuracy of product listings, prices, and availability.</li>
+      <li>Merchants must hold all required licences (drug licence for pharmacies, FSSAI for food businesses, etc.).</li>
+      <li>Merchants are responsible for order quality, delivery, and customer satisfaction.</li>
+    </ul>
+
+    <h2>6. Customer Responsibilities</h2>
+    <ul>
+      <li>Provide accurate delivery address and contact information.</li>
+      <li>Be available to receive orders at the delivery address.</li>
+      <li>Report any issues with orders within 24 hours of delivery.</li>
+    </ul>
+
+    <h2>7. Cancellations & Refunds</h2>
+    <p>Cancellations before merchant confirmation are free. After confirmation, cancellation policies are set by each merchant. For COD orders, no refund is applicable. For UPI orders, refunds are processed by the merchant directly.</p>
+
+    <h2>8. Limitation of Liability</h2>
+    <p>ManaBazar provides the platform "as is". We are not liable for product quality, delivery delays, merchant conduct, or any disputes between customers and merchants. Our liability is limited to the platform service fees, if any.</p>
+
+    <h2>9. Governing Law</h2>
+    <p>These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Vijayawada, Andhra Pradesh.</p>
+
+    <h2>10. Contact</h2>
+    <p>For legal queries: legal@yourplatform.in<br>
+    For general support: support@yourplatform.in</p>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: STORE DETAIL (A1)
+     ═══════════════════════════════════════════════════ -->
+<div id="a-storedetail" class="screen">
+  <!-- Hero -->
+  <div class="sd-hero">
+    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #DC2626 0%, #991B1B 50%, #1E1B18 100%); display: flex; align-items: center; justify-content: center;">
+      <span style="font-size: 80px; opacity: 0.15;">💊</span>
+    </div>
+    <div class="sd-hero-overlay"></div>
+    <button class="sd-hero-back" onclick="goBack()">←</button>
+    <div class="sd-hero-actions">
+      <button class="sd-hero-action">🔗</button>
+      <button class="sd-hero-action">❤️</button>
+    </div>
+    <div class="sd-hero-content">
+      <div class="sd-hero-logo">💊</div>
+      <div>
+        <div class="sd-hero-name">Sri Lakshmi Pharmacy</div>
+        <div class="sd-hero-cat">Pharmacy & Wellness · Labbipet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="sd-stats">
+    <div class="sd-stat">
+      <div class="sd-stat-val">★ 4.6</div>
+      <div class="sd-stat-label">128 reviews</div>
+    </div>
+    <div class="sd-stat">
+      <div class="sd-stat-val">1.2 km</div>
+      <div class="sd-stat-label">Distance</div>
+    </div>
+    <div class="sd-stat">
+      <div class="sd-stat-val">20 min</div>
+      <div class="sd-stat-label">Delivery</div>
+    </div>
+    <div class="sd-stat">
+      <div class="sd-stat-val">₹25</div>
+      <div class="sd-stat-label">Del. fee</div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="sd-info">
+    <div class="sd-info-row">
+      <span class="sd-info-icon">🕐</span>
+      <div>
+        <div class="sd-info-label" style="color: var(--color-success); font-weight: var(--weight-semi);">Open Now</div>
+        <div class="sd-info-sub">Mon–Sat: 8:00 AM – 10:00 PM · Sun: 9:00 AM – 2:00 PM</div>
+      </div>
+    </div>
+    <div class="sd-info-row">
+      <span class="sd-info-icon">📍</span>
+      <div>
+        <div class="sd-info-label">23-4-5, MG Road, Labbipet, Vijayawada — 520010</div>
+        <div class="sd-info-sub">Near Krishna Talkies</div>
+      </div>
+    </div>
+    <div class="sd-info-row">
+      <span class="sd-info-icon">📞</span>
+      <div>
+        <div class="sd-info-label">+91 89289 56128</div>
+        <div class="sd-info-sub">WhatsApp & calls available</div>
+      </div>
+    </div>
+    <div class="sd-info-row">
+      <span class="sd-info-icon">🏷️</span>
+      <div>
+        <div class="sd-info-label">Min. order ₹99 · Free delivery above ₹499</div>
+        <div class="sd-info-sub">COD & UPI accepted</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <div style="padding: 0 var(--space-lg) var(--space-lg); display: flex; gap: 8px; flex-wrap: wrap;">
+    <span class="badge badge--organic">✓ Verified Store</span>
+    <span class="badge badge--merchant">⚡ Fast Delivery</span>
+    <span class="badge" style="background: var(--color-whatsapp-light); color: var(--color-whatsapp-dark);">📱 WhatsApp Orders</span>
+    <span class="badge badge--paid">🔥 Popular</span>
+  </div>
+
+  <!-- Popular Products -->
+  <div class="sd-section">
+    <div class="sd-section-title">🔥 Popular Products</div>
+    <div class="sd-product-scroll">
+      <div class="sd-product-card" onclick="window.location.href='storefront.html'">
+        <div class="sd-product-img" style="background: var(--color-success-light);">💊</div>
+        <div class="sd-product-info">
+          <div class="sd-product-name">Dolo 650mg</div>
+          <div class="sd-product-price">₹26</div>
+        </div>
+      </div>
+      <div class="sd-product-card" onclick="window.location.href='storefront.html'">
+        <div class="sd-product-img" style="background: var(--color-accent-light);">🧴</div>
+        <div class="sd-product-info">
+          <div class="sd-product-name">Himalaya Face Wash</div>
+          <div class="sd-product-price">₹185</div>
+        </div>
+      </div>
+      <div class="sd-product-card" onclick="window.location.href='storefront.html'">
+        <div class="sd-product-img" style="background: var(--color-secondary-light);">💉</div>
+        <div class="sd-product-info">
+          <div class="sd-product-name">Zincovit Tablets</div>
+          <div class="sd-product-price">₹115</div>
+        </div>
+      </div>
+      <div class="sd-product-card" onclick="window.location.href='storefront.html'">
+        <div class="sd-product-img" style="background: #E0E7FF;">🌿</div>
+        <div class="sd-product-info">
+          <div class="sd-product-name">Ashwagandha</div>
+          <div class="sd-product-price">₹340</div>
+        </div>
+      </div>
+      <div class="sd-product-card" onclick="window.location.href='storefront.html'">
+        <div class="sd-product-img" style="background: var(--color-primary-light);">🩹</div>
+        <div class="sd-product-info">
+          <div class="sd-product-name">Band-Aid Pack</div>
+          <div class="sd-product-price">₹45</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="sd-section">
+    <div class="sd-section-title">⭐ Customer Reviews <span style="font-weight: var(--weight-regular); font-size: var(--font-sm); color: var(--color-muted);">128 reviews</span></div>
+
+    <div class="sd-review-mini">
+      <div class="sd-review-top">
+        <span class="sd-review-name">Priya S.</span>
+        <span class="sd-review-stars">★★★★★</span>
+      </div>
+      <div class="sd-review-text">Super fast delivery! Got my medicines in 15 minutes. Very reliable store.</div>
+    </div>
+    <div class="sd-review-mini">
+      <div class="sd-review-top">
+        <span class="sd-review-name">Venkat R.</span>
+        <span class="sd-review-stars">★★★★☆</span>
+      </div>
+      <div class="sd-review-text">Good stock availability. Prices are fair. WhatsApp ordering is very convenient.</div>
+    </div>
+    <div class="sd-review-mini">
+      <div class="sd-review-top">
+        <span class="sd-review-name">Lakshmi D.</span>
+        <span class="sd-review-stars">★★★★★</span>
+      </div>
+      <div class="sd-review-text">Best pharmacy in Labbipet. Genuine medicines and the owner is very helpful.</div>
+    </div>
+  </div>
+
+  <!-- CTA Buttons -->
+  <div style="padding: 0 var(--space-lg) var(--space-lg); display: flex; flex-direction: column; gap: var(--space-sm);">
+    <a href="storefront.html" class="btn btn--primary btn--full btn--lg" style="text-decoration:none;">🛒 Visit Store & Order</a>
+    <button class="btn btn--whatsapp btn--full" onclick="window.open('https://wa.me/918928956128?text=Hi%2C%20I%20want%20to%20order%20from%20Sri%20Lakshmi%20Pharmacy','_blank')">📱 Order via WhatsApp</button>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: OFFERS / DEALS FEED (A6)
+     ═══════════════════════════════════════════════════ -->
+<div id="a-offers" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div>
+      <div class="page-title">Offers & Deals</div>
+      <div class="page-subtitle">Best deals from stores near you</div>
+    </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="offers-banner">
+    <div class="offers-banner-icon">🎉</div>
+    <div class="offers-banner-title">Ugadi Special!</div>
+    <div class="offers-banner-sub">Up to 30% off on 50+ stores near you</div>
+    <div style="position:absolute; top:16px; right:16px; font-size:48px; opacity:0.15;">🎊</div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="offers-filter-row">
+    <div class="offers-chip active" onclick="filterOffers(this,'all')">All Offers</div>
+    <div class="offers-chip" onclick="filterOffers(this,'pharmacy')">💊 Pharmacy</div>
+    <div class="offers-chip" onclick="filterOffers(this,'restaurant')">🍽️ Restaurant</div>
+    <div class="offers-chip" onclick="filterOffers(this,'grocery')">🏪 Grocery</div>
+    <div class="offers-chip" onclick="filterOffers(this,'bakery')">🍰 Bakery</div>
+  </div>
+
+  <!-- Offer Cards -->
+  <div id="offersContainer">
+    <div class="offer-card" data-offer-cat="pharmacy">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: var(--color-success-light);">💊</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">Sri Lakshmi Pharmacy · 1.2 km</div>
+          <div class="offer-card-title">Flat 20% off on Vitamins & Supplements</div>
+          <div class="offer-card-desc">Min. order ₹299 · All vitamin brands included</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">VITA20</div>
+        <div class="offer-card-validity">Valid till 15 Apr</div>
+      </div>
+    </div>
+
+    <div class="offer-card" data-offer-cat="restaurant">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: var(--color-primary-muted);">🍽️</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">Andhra Spice Kitchen · 0.5 km</div>
+          <div class="offer-card-title">Buy 1 Get 1 on Thali Meals</div>
+          <div class="offer-card-desc">Lunch special · 12 PM to 3 PM only</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">BOGO-THALI</div>
+        <div class="offer-card-validity">Valid till 20 Apr</div>
+      </div>
+    </div>
+
+    <div class="offer-card" data-offer-cat="pharmacy">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: var(--color-accent-light);">💊</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">MedPlus Pharmacy · 2.1 km</div>
+          <div class="offer-card-title">₹100 off on orders above ₹599</div>
+          <div class="offer-card-desc">All categories · First time users only</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">MEDPLUS100</div>
+        <div class="offer-card-validity">Valid till 30 Apr</div>
+      </div>
+    </div>
+
+    <div class="offer-card" data-offer-cat="grocery">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: var(--color-success-light);">🏪</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">Lakshmi General Store · 0.4 km</div>
+          <div class="offer-card-title">Free Delivery + 10% off on Groceries</div>
+          <div class="offer-card-desc">Min. order ₹199 · All grocery items</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">GROC10</div>
+        <div class="offer-card-validity">Valid till 18 Apr</div>
+      </div>
+    </div>
+
+    <div class="offer-card" data-offer-cat="bakery">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: #FDE68A;">🍰</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">Sri Krishna Sweets · 0.6 km</div>
+          <div class="offer-card-title">15% off on Sweets Box (1kg+)</div>
+          <div class="offer-card-desc">Ugadi special combos available</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">UGADI15</div>
+        <div class="offer-card-validity">Valid till 14 Apr</div>
+      </div>
+    </div>
+
+    <div class="offer-card" data-offer-cat="restaurant">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: var(--color-secondary-light);">🍕</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">Pizza Corner Express · 1.8 km</div>
+          <div class="offer-card-title">₹99 Medium Pizza — Weekend Special</div>
+          <div class="offer-card-desc">Sat & Sun only · Dine-in & delivery</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">PIZZA99</div>
+        <div class="offer-card-validity">Weekends only</div>
+      </div>
+    </div>
+
+    <div class="offer-card" data-offer-cat="grocery">
+      <div class="offer-card-top">
+        <div class="offer-card-icon" style="background: var(--color-secondary-light);">🏪</div>
+        <div class="offer-card-info">
+          <div class="offer-card-store">Srinivasa Super Market · 1.9 km</div>
+          <div class="offer-card-title">Flat ₹50 off on Fresh Vegetables</div>
+          <div class="offer-card-desc">Daily fresh stock · Min. order ₹149</div>
+        </div>
+      </div>
+      <div class="offer-card-footer">
+        <div class="offer-card-code">FRESH50</div>
+        <div class="offer-card-validity">Valid till 25 Apr</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: LOCALITY SELECTOR (A7)
+     ═══════════════════════════════════════════════════ -->
+<div id="a-locality" class="screen">
+  <div class="page-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div>
+      <div class="page-title">Select Locality</div>
+      <div class="page-subtitle">Choose your area for nearby stores</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="loc-search">
+    <span class="loc-search-icon">🔍</span>
+    <input type="text" placeholder="Search area, locality or pincode..." oninput="filterLocalities(this.value)">
+  </div>
+
+  <!-- GPS Row -->
+  <div class="loc-gps-row" onclick="selectLocality('Labbipet, Vijayawada')">
+    <span class="loc-gps-icon">📍</span>
+    <div>
+      <div class="loc-gps-text">Use current location</div>
+      <div style="font-size: var(--font-sm); color: var(--color-muted);">Powered by GPS</div>
+    </div>
+    <span style="margin-left:auto; font-size:16px; color:var(--color-accent);">→</span>
+  </div>
+
+  <!-- Vijayawada Areas -->
+  <div class="loc-section-title">Vijayawada</div>
+  <div id="localityList">
+    <div class="loc-item" onclick="selectLocality('Labbipet, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Labbipet</div>
+        <div class="loc-item-sub">Near MG Road, 520010</div>
+      </div>
+      <span class="loc-item-stores">42 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Governorpet, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Governorpet</div>
+        <div class="loc-item-sub">Central Vijayawada, 520002</div>
+      </div>
+      <span class="loc-item-stores">38 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Brodipet, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Brodipet</div>
+        <div class="loc-item-sub">Near Brodipet Market, 520001</div>
+      </div>
+      <span class="loc-item-stores">35 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Patamata, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Patamata</div>
+        <div class="loc-item-sub">Patamata Hills, 520010</div>
+      </div>
+      <span class="loc-item-stores">28 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Moghalrajpuram, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Moghalrajpuram</div>
+        <div class="loc-item-sub">Near Kanaka Durga Temple, 520010</div>
+      </div>
+      <span class="loc-item-stores">22 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Benz Circle, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Benz Circle</div>
+        <div class="loc-item-sub">NH-65 Junction, 520010</div>
+      </div>
+      <span class="loc-item-stores">31 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Machavaram, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Machavaram</div>
+        <div class="loc-item-sub">Near Railway Station, 520004</div>
+      </div>
+      <span class="loc-item-stores">19 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Auto Nagar, Vijayawada')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Auto Nagar</div>
+        <div class="loc-item-sub">Industrial Area, 520007</div>
+      </div>
+      <span class="loc-item-stores">15 stores</span>
+    </div>
+  </div>
+
+  <!-- Guntur Areas -->
+  <div class="loc-section-title">Guntur</div>
+  <div id="localityListGuntur">
+    <div class="loc-item" onclick="selectLocality('Brodipet, Guntur')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Brodipet</div>
+        <div class="loc-item-sub">Main Road, Guntur, 522002</div>
+      </div>
+      <span class="loc-item-stores">25 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Arundelpet, Guntur')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Arundelpet</div>
+        <div class="loc-item-sub">Guntur Old City, 522002</div>
+      </div>
+      <span class="loc-item-stores">20 stores</span>
+    </div>
+    <div class="loc-item" onclick="selectLocality('Lakshmipuram, Guntur')">
+      <span class="loc-item-icon">📍</span>
+      <div>
+        <div class="loc-item-name">Lakshmipuram</div>
+        <div class="loc-item-sub">Near Collectorate, 522004</div>
+      </div>
+      <span class="loc-item-stores">18 stores</span>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     BOTTOM NAV (always visible)
+     ═══════════════════════════════════════════════════ -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="nav-item active" data-nav="home" onclick="navTo('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+  <div class="nav-item" data-nav="search" onclick="openSearch()"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></div>
+  <div class="nav-item" data-nav="cart" onclick="window.location.href='storefront.html'"><span class="nav-icon">🛒</span><span class="nav-label">Cart</span><span class="nav-badge">2</span></div>
+  <div class="nav-item" data-nav="orders" onclick="navTo('orders')"><span class="nav-icon">📦</span><span class="nav-label">Orders</span></div>
+  <div class="nav-item" data-nav="account" onclick="navTo('account')"><span class="nav-icon">👤</span><span class="nav-label">Account</span></div>
+</nav>
+
+<script>
+// ── Screen Navigation ──
+const allScreens = document.querySelectorAll('.screen');
+let navHistory = ['home'];
+
+function go(name) {
+  allScreens.forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('a-' + name);
+  if (el) {
+    el.classList.add('active');
+    if (navHistory[navHistory.length - 1] !== name) navHistory.push(name);
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  updateNav(name);
+  closeSearch();
+  // Show/hide bottom nav for onboarding flow
+  const hideNav = ['onboard', 'locperm'].includes(name);
+  document.getElementById('bottomNav').style.display = hideNav ? 'none' : '';
+}
+
+function goBack() {
+  navHistory.pop();
+  const prev = navHistory[navHistory.length - 1] || 'home';
+  allScreens.forEach(s => s.classList.remove('active'));
+  document.getElementById('a-' + prev).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  updateNav(prev);
+}
+
+function navTo(name) {
+  navHistory = ['home'];
+  go(name);
+}
+
+function updateNav(name) {
+  const navMap = { home: 'home', search: 'search', orders: 'orders', account: 'account' };
+  const activeNav = navMap[name] || null;
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.nav === activeNav);
+  });
+}
+
+// ── Category Filtering ──
+function filterCat(cat) {
+  // Update active pill
+  document.querySelectorAll('.agg-cat-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-cat="${cat}"]`).classList.add('active');
+
+  // Show/hide sections
+  const sections = document.querySelectorAll('[data-cat-section]');
+  const featured = document.getElementById('sec-featured');
+  const software = document.getElementById('sec-software');
+
+  if (cat === 'all') {
+    sections.forEach(s => s.style.display = '');
+    if (featured) featured.style.display = '';
+    if (software) software.style.display = '';
+  } else {
+    sections.forEach(s => {
+      s.style.display = s.dataset.catSection === cat ? '' : 'none';
+    });
+    if (featured) featured.style.display = 'none';
+    if (software) software.style.display = 'none';
+  }
+}
+
+// ── Quick Filter Toggle ──
+function toggleFilter(chip) {
+  document.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+}
+
+// ── Inline Search Overlay ──
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('searchInput').focus(), 100);
+}
+function closeSearch() {
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('search-recent').style.display = '';
+  document.getElementById('search-results').style.display = 'none';
+}
+
+// ── See All Filter Toggle ──
+function toggleSaFilter(chip) {
+  chip.classList.toggle('active');
+}
+
+// ── Search ──
+const allStores = [
+  { name: 'Sri Lakshmi Pharmacy', cat: 'Pharmacy & Wellness', type: 'pharmacy', area: 'Labbipet', rating: '4.6', reviews: '128', dist: '1.2 km', icon: '💊', bg: 'var(--color-success-light)', badges: ['verified', 'fast', 'whatsapp'] },
+  { name: 'MedPlus Pharmacy', cat: 'Pharmacy', type: 'pharmacy', area: 'Governorpet', rating: '4.2', reviews: '89', dist: '2.1 km', icon: '💊', bg: 'var(--color-accent-light)', badges: ['verified'] },
+  { name: 'Vijaya Health Hub', cat: 'Pharmacy & Diagnostics', type: 'pharmacy', area: 'Brodipet', rating: '4.4', reviews: '67', dist: '2.8 km', icon: '💊', bg: 'var(--color-secondary-light)', badges: ['verified'] },
+  { name: 'Sai Durga Medical', cat: 'Pharmacy', type: 'pharmacy', area: 'Patamata', rating: '4.0', reviews: '42', dist: '1.5 km', icon: '💊', bg: '#E0E7FF', badges: ['fast'] },
+  { name: 'Andhra Spice Kitchen', cat: 'Telugu Cuisine', type: 'restaurant', area: 'Labbipet', rating: '4.7', reviews: '312', dist: '0.5 km', icon: '🍽️', bg: 'var(--color-primary-muted)', badges: ['verified', 'popular'] },
+  { name: 'Pizza Corner Express', cat: 'Pizza & Fast Food', type: 'restaurant', area: 'Governorpet', rating: '4.3', reviews: '156', dist: '1.8 km', icon: '🍕', bg: 'var(--color-secondary-light)', badges: ['fast'] },
+  { name: 'Bawarchi Biryani', cat: 'Biryani & Kebabs', type: 'restaurant', area: 'Brodipet', rating: '4.5', reviews: '203', dist: '3.0 km', icon: '🍛', bg: 'var(--color-success-light)', badges: ['verified'] },
+  { name: 'Bismillah Fresh Meats', cat: 'Meat & Poultry · Halal', type: 'meat', area: 'Labbipet', rating: '4.8', reviews: '245', dist: '0.8 km', icon: '🥩', bg: '#FECDD3', badges: ['verified', 'popular'] },
+  { name: 'Licious Fresh', cat: 'Chicken & Fish', type: 'meat', area: 'Governorpet', rating: '4.3', reviews: '98', dist: '1.6 km', icon: '🍗', bg: 'var(--color-secondary-light)', badges: ['fast'] },
+  { name: 'Krishna Fish Market', cat: 'Fresh Fish & Prawns', type: 'meat', area: 'Patamata', rating: '4.1', reviews: '56', dist: '2.4 km', icon: '🐟', bg: 'var(--color-success-light)', badges: ['verified'] },
+  { name: 'Sri Krishna Sweets', cat: 'Sweets & Bakery', type: 'bakery', area: 'Labbipet', rating: '4.7', reviews: '310', dist: '0.6 km', icon: '🍰', bg: '#FDE68A', badges: ['verified', 'popular'] },
+  { name: 'Cake Walk', cat: 'Cakes & Pastries', type: 'bakery', area: 'Brodipet', rating: '4.4', reviews: '87', dist: '1.9 km', icon: '🧁', bg: '#FBCFE8', badges: ['fast'] },
+  { name: 'Karachi Bakery', cat: 'Bakery', type: 'bakery', area: 'Governorpet', rating: '4.5', reviews: '178', dist: '2.2 km', icon: '🍩', bg: 'var(--color-secondary-light)', badges: ['verified'] },
+  { name: 'Lakshmi General Store', cat: 'Grocery', type: 'grocery', area: 'Labbipet', rating: '4.3', reviews: '78', dist: '0.4 km', icon: '🏪', bg: 'var(--color-success-light)', badges: ['verified', 'fast', 'whatsapp'] },
+  { name: 'Srinivasa Super Market', cat: 'Supermarket', type: 'grocery', area: 'Governorpet', rating: '4.5', reviews: '134', dist: '1.9 km', icon: '🏪', bg: 'var(--color-secondary-light)', badges: ['verified', 'popular'] },
+  { name: 'Naveen Provisions', cat: 'Grocery', type: 'grocery', area: 'Patamata', rating: '4.0', reviews: '34', dist: '2.3 km', icon: '🏪', bg: 'var(--color-accent-light)', badges: ['verified'] },
+  { name: 'Lakshmi Flower Shop', cat: 'Flowers & Garlands', type: 'flowers', area: 'Labbipet', rating: '4.5', reviews: '64', dist: '0.3 km', icon: '🌸', bg: '#FECDD3', badges: ['verified', 'whatsapp'] },
+  { name: 'Sai Pooja Store', cat: 'Pooja Items & Flowers', type: 'flowers', area: 'Patamata', rating: '4.3', reviews: '41', dist: '1.4 km', icon: '🪷', bg: '#D1FAE5', badges: ['fast'] },
+  { name: 'Kalanjali Silks', cat: 'Sarees & Dress Materials', type: 'fashion', area: 'MG Road', rating: '4.6', reviews: '215', dist: '1.1 km', icon: '👗', bg: '#E0E7FF', badges: ['popular'] },
+  { name: 'Style Hub Mens Wear', cat: 'Mens Fashion', type: 'fashion', area: 'Brodipet', rating: '4.2', reviews: '92', dist: '2.5 km', icon: '👔', bg: '#DBEAFE', badges: ['verified'] },
+];
+
+function renderStoreCard(store) {
+  const badgeMap = {
+    verified: '<span class="mlc-badge mlc-badge--verified">✓ Verified</span>',
+    fast: '<span class="mlc-badge mlc-badge--fast">⚡ Fast</span>',
+    popular: '<span class="mlc-badge mlc-badge--popular">🔥 Popular</span>',
+    whatsapp: '<span class="mlc-badge mlc-badge--whatsapp">📱 WhatsApp</span>'
+  };
+  return `<a href="#" onclick="event.preventDefault();go('storedetail')" class="mc-list-card">
+    <div class="mlc-img" style="background: ${store.bg};">${store.icon}</div>
+    <div class="mlc-body">
+      <div class="mlc-name">${store.name}</div>
+      <div class="mlc-category">${store.cat} · ${store.area}</div>
+      <div class="mlc-badges">${store.badges.map(b => badgeMap[b] || '').join('')}</div>
+      <div class="mlc-meta"><span>★ ${store.rating} (${store.reviews})</span><span>📍 ${store.dist}</span></div>
+    </div>
+  </a>`;
+}
+
+function doSearch(query) {
+  const recent = document.getElementById('search-recent');
+  const results = document.getElementById('search-results');
+  const countEl = document.getElementById('search-count');
+  const listEl = document.getElementById('search-list');
+
+  if (!query.trim()) {
+    recent.style.display = '';
+    results.style.display = 'none';
+    return;
+  }
+
+  recent.style.display = 'none';
+  results.style.display = '';
+
+  const q = query.toLowerCase();
+  const matches = allStores.filter(s =>
+    s.name.toLowerCase().includes(q) ||
+    s.cat.toLowerCase().includes(q) ||
+    s.type.toLowerCase().includes(q) ||
+    s.area.toLowerCase().includes(q)
+  );
+
+  countEl.textContent = matches.length + ' store' + (matches.length !== 1 ? 's' : '') + ' found for "' + query + '"';
+  listEl.innerHTML = matches.length ? matches.map(renderStoreCard).join('') :
+    '<div class="empty-state" style="padding: 40px 16px;"><div class="empty-state-icon">🔍</div><div class="empty-state-title">No results found</div><div class="empty-state-desc">Try searching for a different store name, category, or area.</div></div>';
+}
+
+function fillSearch(text) {
+  const inp = document.getElementById('searchInput');
+  inp.value = text;
+  doSearch(text);
+}
+
+// ── See All ──
+const catMeta = {
+  pharmacy:   { title: 'All Pharmacies', sub: '12 pharmacies near Labbipet', filter: s => /pharmacy|medical|health|wellness|diagnostics/i.test(s.cat) },
+  restaurant: { title: 'All Restaurants', sub: '8 restaurants near Labbipet', filter: s => /cuisine|pizza|fast food|biryani|kebab|restaurant/i.test(s.cat) },
+  meat:       { title: 'Meat & Poultry', sub: '6 stores near Labbipet', filter: s => /meat|poultry|chicken|fish|prawns|halal/i.test(s.cat) },
+  bakery:     { title: 'Bakery & Sweets', sub: '5 stores near Labbipet', filter: s => /bakery|sweets|cake|pastries/i.test(s.cat) },
+  grocery:    { title: 'Grocery & General', sub: '15 stores near Labbipet', filter: s => /grocery|supermarket|provisions|general/i.test(s.cat) },
+  flowers:    { title: 'Flowers & Pooja', sub: '4 stores near Labbipet', filter: s => /flower|garlands|pooja/i.test(s.cat) },
+  fashion:    { title: 'Fashion & Clothing', sub: '3 stores near Labbipet', filter: s => /saree|dress|fashion|silk|wear/i.test(s.cat) },
+};
+
+function showSeeAll(cat) {
+  const meta = catMeta[cat];
+  if (!meta) return;
+  document.getElementById('seeall-title').textContent = meta.title;
+  document.getElementById('seeall-subtitle').textContent = meta.sub;
+  document.getElementById('seeall-info').textContent = 'Sorted by distance · Labbipet, Vijayawada';
+  const matches = allStores.filter(meta.filter);
+  document.getElementById('seeall-list').innerHTML = matches.map(renderStoreCard).join('');
+  go('seeall');
+}
+
+// ── FAQ Toggle ──
+function toggleFaq(item) {
+  item.classList.toggle('open');
+}
+
+// ── Offers Filter ──
+function filterOffers(chip, cat) {
+  document.querySelectorAll('.offers-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  document.querySelectorAll('.offer-card').forEach(card => {
+    card.style.display = (cat === 'all' || card.dataset.offerCat === cat) ? '' : 'none';
+  });
+}
+
+// ── Locality Selector ──
+function filterLocalities(q) {
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('.loc-item').forEach(item => {
+    const name = item.querySelector('.loc-item-name').textContent.toLowerCase();
+    const sub = item.querySelector('.loc-item-sub').textContent.toLowerCase();
+    item.style.display = (!q || name.includes(q) || sub.includes(q)) ? '' : 'none';
+  });
+}
+
+function selectLocality(name) {
+  const locEl = document.querySelector('.agg-location');
+  if (locEl) {
+    locEl.innerHTML = '<span class="agg-location-pin">📍</span> ' + name + ' ▾';
+  }
+  go('home');
+}
+
+// ── ONBOARDING ──
+let currentSlide = 0;
+const totalSlides = 3;
+
+function nextSlide() {
+  if (currentSlide < totalSlides - 1) {
+    // Move to next slide
+    const current = document.querySelector('.onboard-slide.active');
+    current.classList.remove('active');
+    current.classList.add('exit');
+    setTimeout(() => current.classList.remove('exit'), 400);
+
+    currentSlide++;
+    const next = document.querySelector(`[data-slide="${currentSlide}"]`);
+    next.classList.add('active');
+
+    // Update dots
+    document.querySelectorAll('.onboard-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentSlide);
+    });
+
+    // Last slide = change button
+    if (currentSlide === totalSlides - 1) {
+      document.getElementById('onboardBtn').textContent = 'Get Started →';
+    }
+  } else {
+    // Done — go to location permission
+    go('locperm');
+  }
+}
+
+function skipOnboarding() {
+  go('locperm');
+}
+
+function allowLocation() {
+  const btn = event.target;
+  btn.textContent = '📍 Detecting...';
+  btn.style.opacity = '0.7';
+  setTimeout(() => {
+    go('home');
+    // Show bottom nav
+    document.getElementById('bottomNav').style.display = '';
+  }, 1200);
+}
+
+// Hide bottom nav initially during onboarding
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('bottomNav').style.display = 'none';
+});
+</script>
+
+</body>
+</html>
