@@ -651,6 +651,240 @@
     color: var(--color-primary); font-weight: var(--weight-semi);
     cursor: pointer;
   }
+
+  /* ================================================================
+     AG1: ADVANCED FILTERS (A-HOME)
+     ================================================================ */
+  .adv-filter-toggle {
+    display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border-radius: var(--radius-full); font-size: var(--font-sm);
+    font-weight: var(--weight-semi); background: var(--color-surface);
+    border: 1.5px solid var(--color-divider); color: var(--color-body);
+    cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all var(--duration-fast);
+  }
+  .adv-filter-toggle.has-filters { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); }
+  .adv-filter-panel {
+    display: none; padding: var(--space-md) var(--space-lg);
+    background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+    animation: screenIn var(--duration-normal) var(--ease-out);
+  }
+  .adv-filter-panel.open { display: block; }
+  .adv-filter-section { margin-bottom: var(--space-md); }
+  .adv-filter-label {
+    font-size: var(--font-xs); font-weight: var(--weight-bold); color: var(--color-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  .adv-filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .adv-pill {
+    padding: 7px 14px; border-radius: var(--radius-full); font-size: var(--font-sm);
+    font-weight: var(--weight-medium); background: var(--color-bg);
+    border: 1.5px solid var(--color-divider); color: var(--color-body);
+    cursor: pointer; transition: all var(--duration-fast);
+  }
+  .adv-pill:active { transform: scale(0.95); }
+  .adv-pill.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+  .adv-pill--veg.active { background: var(--color-success); border-color: var(--color-success); }
+  .adv-filter-actions {
+    display: flex; gap: 10px; margin-top: var(--space-md); padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+  .adv-filter-clear {
+    flex: 1; padding: 10px; border-radius: var(--radius-md); font-size: var(--font-sm);
+    font-weight: var(--weight-semi); background: var(--color-bg); border: 1.5px solid var(--color-divider);
+    color: var(--color-body); cursor: pointer;
+  }
+  .adv-filter-apply {
+    flex: 2; padding: 10px; border-radius: var(--radius-md); font-size: var(--font-sm);
+    font-weight: var(--weight-bold); background: var(--color-primary); border: none;
+    color: #fff; cursor: pointer; box-shadow: var(--shadow-primary);
+  }
+
+  /* ================================================================
+     AG2: STORE DETAIL ENHANCEMENTS
+     ================================================================ */
+  .sd-photos-scroll {
+    display: flex; gap: 8px; padding: 0 var(--space-lg) var(--space-md);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .sd-photos-scroll::-webkit-scrollbar { display: none; }
+  .sd-photo-thumb {
+    width: 100px; height: 72px; border-radius: var(--radius-sm);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; cursor: pointer; transition: transform var(--duration-fast);
+  }
+  .sd-photo-thumb:active { transform: scale(0.95); }
+  .sd-fssai-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: var(--radius-sm);
+    background: var(--color-bg-tint); border: 1px solid var(--color-border);
+    font-size: var(--font-xs); color: var(--color-muted);
+  }
+  .sd-fssai-num { font-weight: var(--weight-semi); color: var(--color-body); }
+  .sd-cuisine-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--space-md); }
+  .sd-cuisine-tag {
+    padding: 4px 10px; border-radius: var(--radius-full);
+    background: var(--color-bg-warm); font-size: var(--font-xs);
+    font-weight: var(--weight-medium); color: var(--color-body);
+  }
+  .sd-status-banner {
+    padding: 10px var(--space-lg); display: flex; align-items: center; gap: 8px;
+    font-size: var(--font-sm); font-weight: var(--weight-semi);
+  }
+  .sd-status-banner--open { background: var(--color-success-light); color: var(--color-success-dark); }
+  .sd-status-banner--closed { background: var(--color-primary-light); color: var(--color-primary-dark); }
+  .sd-status-dot { width: 8px; height: 8px; border-radius: var(--radius-full); }
+  .sd-status-banner--open .sd-status-dot { background: var(--color-success); }
+  .sd-status-banner--closed .sd-status-dot { background: var(--color-primary); }
+  .sd-menu-preview { padding: 0 var(--space-lg) var(--space-lg); }
+  .sd-menu-cats { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-top: 8px; }
+  .sd-menu-cats::-webkit-scrollbar { display: none; }
+  .sd-menu-cat {
+    padding: 8px 14px; border-radius: var(--radius-md); font-size: var(--font-sm);
+    font-weight: var(--weight-semi); background: var(--color-bg-warm); color: var(--color-body);
+    white-space: nowrap; flex-shrink: 0; cursor: pointer; transition: all var(--duration-fast);
+    border: 1.5px solid transparent;
+  }
+  .sd-menu-cat:active { transform: scale(0.95); }
+  .sd-menu-cat.active { background: var(--color-primary-light); color: var(--color-primary); border-color: var(--color-primary-ring); }
+  .sd-menu-items { margin-top: var(--space-md); }
+  .sd-menu-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--color-border);
+  }
+  .sd-menu-item:last-child { border-bottom: none; }
+  .sd-menu-item-name { font-size: var(--font-md); font-weight: var(--weight-medium); color: var(--color-dark); }
+  .sd-menu-item-price { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-primary); }
+  .sd-menu-item-desc { font-size: var(--font-xs); color: var(--color-muted); }
+
+  /* ================================================================
+     AG3: ORDERS — Full Cross-Store History
+     ================================================================ */
+  .agg-order-card {
+    margin: 0 var(--space-lg) var(--space-md); border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border); background: var(--color-surface);
+    overflow: hidden; transition: all var(--duration-fast);
+  }
+  .agg-order-card:active { transform: scale(0.99); }
+  .agg-order-top {
+    display: flex; gap: var(--space-md); padding: var(--space-md) var(--space-lg);
+    align-items: center;
+  }
+  .agg-order-icon {
+    width: 48px; height: 48px; border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .agg-order-info { flex: 1; min-width: 0; }
+  .agg-order-store { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .agg-order-items { font-size: var(--font-sm); color: var(--color-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .agg-order-meta { display: flex; gap: 10px; margin-top: 4px; font-size: var(--font-xs); color: var(--color-subtle); }
+  .agg-order-status {
+    padding: 4px 10px; border-radius: var(--radius-full); font-size: var(--font-xs);
+    font-weight: var(--weight-bold); white-space: nowrap; align-self: flex-start;
+  }
+  .agg-order-status--delivered { background: var(--color-success-light); color: var(--color-success-dark); }
+  .agg-order-status--cancelled { background: var(--color-primary-light); color: var(--color-primary-dark); }
+  .agg-order-status--active { background: var(--color-accent-light); color: var(--color-accent-dark); }
+  .agg-order-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px var(--space-lg); background: var(--color-bg-tint);
+    border-top: 1px solid var(--color-border);
+  }
+  .agg-order-total { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); }
+  .agg-order-reorder {
+    padding: 6px 14px; border-radius: var(--radius-full); font-size: var(--font-sm);
+    font-weight: var(--weight-bold); background: var(--color-primary); color: #fff;
+    border: none; cursor: pointer; transition: all var(--duration-fast);
+  }
+  .agg-order-reorder:active { transform: scale(0.95); }
+  .agg-order-rate {
+    padding: 6px 14px; border-radius: var(--radius-full); font-size: var(--font-sm);
+    font-weight: var(--weight-semi); background: var(--color-bg-warm); color: var(--color-body);
+    border: none; cursor: pointer;
+  }
+  .agg-orders-tabs {
+    display: flex; padding: 0 var(--space-lg); gap: 0; margin-bottom: var(--space-md);
+  }
+  .agg-orders-tab {
+    flex: 1; padding: 10px; text-align: center; font-size: var(--font-sm);
+    font-weight: var(--weight-semi); color: var(--color-muted);
+    border-bottom: 2px solid transparent; cursor: pointer;
+    transition: all var(--duration-fast);
+  }
+  .agg-orders-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+  .agg-orders-summary {
+    margin: 0 var(--space-lg) var(--space-md); padding: var(--space-md);
+    background: var(--color-bg-tint); border-radius: var(--radius-md);
+    display: flex; justify-content: space-around; text-align: center;
+  }
+  .agg-orders-summary-val { font-size: var(--font-xl); font-weight: var(--weight-black); color: var(--color-dark); }
+  .agg-orders-summary-label { font-size: var(--font-xs); color: var(--color-muted); }
+
+  /* ================================================================
+     AG4: ACCOUNT — Logged-in State
+     ================================================================ */
+  .account-logged-in { display: none; }
+  .account-logged-in.show { display: block; }
+  .account-guest { display: block; }
+  .account-guest.hide { display: none; }
+  .account-wallet-card {
+    margin: 0 var(--space-lg) var(--space-md); padding: var(--space-lg);
+    background: linear-gradient(135deg, var(--color-secondary-light) 0%, #FDE68A 100%);
+    border-radius: var(--radius-lg); display: flex; align-items: center; gap: var(--space-md);
+  }
+  .account-wallet-icon { font-size: 28px; }
+  .account-wallet-info { flex: 1; }
+  .account-wallet-label { font-size: var(--font-sm); color: #92400E; }
+  .account-wallet-bal { font-size: var(--font-3xl); font-weight: var(--weight-black); color: var(--color-secondary-text); }
+  .account-pref-row {
+    display: flex; gap: 8px; margin: 0 var(--space-lg) var(--space-md); flex-wrap: wrap;
+  }
+  .account-pref-pill {
+    padding: 6px 12px; border-radius: var(--radius-full); font-size: var(--font-xs);
+    font-weight: var(--weight-semi); background: var(--color-success-light);
+    color: var(--color-success-dark);
+  }
+  .account-pref-pill--lang { background: var(--color-accent-light); color: var(--color-accent-dark); }
+
+  /* ================================================================
+     AG5: OFFERS — Sort Controls
+     ================================================================ */
+  .offers-sort-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 var(--space-lg) var(--space-md);
+  }
+  .offers-sort-label { font-size: var(--font-xs); color: var(--color-muted); font-weight: var(--weight-semi); white-space: nowrap; }
+  .offers-sort-pills { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .offers-sort-pills::-webkit-scrollbar { display: none; }
+  .offers-sort-pill {
+    padding: 6px 12px; border-radius: var(--radius-full); font-size: var(--font-xs);
+    font-weight: var(--weight-medium); background: var(--color-bg); border: 1.5px solid var(--color-divider);
+    color: var(--color-body); cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: all var(--duration-fast);
+  }
+  .offers-sort-pill.active { background: var(--color-primary-light); color: var(--color-primary); border-color: var(--color-primary-ring); }
+
+  /* ================================================================
+     AG6: LOCALITY — Popular Stores Preview
+     ================================================================ */
+  .loc-popular-stores {
+    display: flex; gap: 6px; padding: 4px 0 0 36px; overflow-x: auto; scrollbar-width: none;
+  }
+  .loc-popular-stores::-webkit-scrollbar { display: none; }
+  .loc-pop-store {
+    display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px;
+    background: var(--color-bg-tint); border-radius: var(--radius-full);
+    font-size: var(--font-xs); color: var(--color-body); white-space: nowrap;
+    flex-shrink: 0; cursor: pointer; transition: all var(--duration-fast);
+    border: 1px solid var(--color-border);
+  }
+  .loc-pop-store:active { background: var(--color-bg-warm); }
+  .loc-pop-icon {
+    width: 22px; height: 22px; border-radius: var(--radius-full);
+    background: var(--color-bg-warm); display: flex; align-items: center;
+    justify-content: center; font-size: 11px;
+  }
+  .loc-pop-rating { color: var(--color-secondary); font-weight: var(--weight-bold); }
 </style>
 </head>
 <body>
@@ -773,6 +1007,57 @@
   <span class="qf-chip" onclick="toggleFilter(this)">Open Now</span>
   <span class="qf-chip" onclick="toggleFilter(this)">Offers</span>
   <span class="qf-chip" onclick="toggleFilter(this)">New</span>
+  <button class="adv-filter-toggle" id="advFilterBtn" onclick="toggleAdvFilters()" aria-expanded="false" aria-controls="advFilterPanel">🎛️ Filters</button>
+</div>
+
+<!-- AG1: Advanced Filter Panel -->
+<div class="adv-filter-panel" id="advFilterPanel" role="region" aria-label="Advanced filters">
+  <div class="adv-filter-section">
+    <div class="adv-filter-label">Cuisine</div>
+    <div class="adv-filter-pills">
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="cuisine" data-val="south-indian">South Indian</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="cuisine" data-val="north-indian">North Indian</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="cuisine" data-val="chinese">Chinese</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="cuisine" data-val="biryani">Biryani</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="cuisine" data-val="pizza">Pizza</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="cuisine" data-val="bakery">Bakery</span>
+    </div>
+  </div>
+  <div class="adv-filter-section">
+    <div class="adv-filter-label">Dietary</div>
+    <div class="adv-filter-pills">
+      <span class="adv-pill adv-pill--veg" onclick="toggleAdvPill(this)" data-filter="diet" data-val="pure-veg">🟢 Pure Veg</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="diet" data-val="non-veg">🔴 Non-Veg</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="diet" data-val="jain">🟡 Jain</span>
+    </div>
+  </div>
+  <div class="adv-filter-section">
+    <div class="adv-filter-label">Rating</div>
+    <div class="adv-filter-pills">
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="rating" data-val="4plus">★ 4.0+</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="rating" data-val="4.5plus">★ 4.5+</span>
+    </div>
+  </div>
+  <div class="adv-filter-section">
+    <div class="adv-filter-label">Delivery Time</div>
+    <div class="adv-filter-pills">
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="time" data-val="15">⚡ Under 15 min</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="time" data-val="30">🕐 Under 30 min</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="time" data-val="60">📦 Under 1 hour</span>
+    </div>
+  </div>
+  <div class="adv-filter-section">
+    <div class="adv-filter-label">Price Range (min. order)</div>
+    <div class="adv-filter-pills">
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="price" data-val="99">Under ₹99</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="price" data-val="199">Under ₹199</span>
+      <span class="adv-pill" onclick="toggleAdvPill(this)" data-filter="price" data-val="499">Under ₹499</span>
+    </div>
+  </div>
+  <div class="adv-filter-actions">
+    <button class="adv-filter-clear" onclick="clearAdvFilters()">Clear All</button>
+    <button class="adv-filter-apply" onclick="applyAdvFilters()">Apply Filters</button>
+  </div>
 </div>
 
 <!-- ── 6. PHARMACIES ── -->
@@ -1174,12 +1459,152 @@
   <div class="page-header">
     <div><div class="page-title">My Orders</div><div class="page-subtitle">Track your order history</div></div>
   </div>
-  <div class="empty-state">
-    <div class="empty-state-icon">📦</div>
-    <div class="empty-state-title">No orders yet</div>
-    <div class="empty-state-desc">When you place an order from any store, it will appear here. Browse stores and start shopping!</div>
-    <button class="btn btn--primary" onclick="go('home')">Browse Stores</button>
+
+  <!-- AG3: Order Summary -->
+  <div class="agg-orders-summary">
+    <div><div class="agg-orders-summary-val">18</div><div class="agg-orders-summary-label">Total Orders</div></div>
+    <div><div class="agg-orders-summary-val">₹4,820</div><div class="agg-orders-summary-label">Total Spent</div></div>
+    <div><div class="agg-orders-summary-val">5</div><div class="agg-orders-summary-label">Stores</div></div>
   </div>
+
+  <!-- AG3: Tabs -->
+  <div class="agg-orders-tabs">
+    <div class="agg-orders-tab active" onclick="filterAggOrders(this,'all')">All (18)</div>
+    <div class="agg-orders-tab" onclick="filterAggOrders(this,'active')">Active (1)</div>
+    <div class="agg-orders-tab" onclick="filterAggOrders(this,'delivered')">Delivered (16)</div>
+    <div class="agg-orders-tab" onclick="filterAggOrders(this,'cancelled')">Cancelled (1)</div>
+  </div>
+
+  <!-- AG3: Active Order -->
+  <div class="agg-order-card" data-order-status="active" onclick="window.location.href='storefront.html'">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, var(--color-accent-light), #BFDBFE);">💊</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Sri Lakshmi Pharmacy</div>
+        <div class="agg-order-items">Dolo 650mg × 2, Crocin, ORS Powder</div>
+        <div class="agg-order-meta"><span>#ORD-1847</span><span>Today, 2:30 PM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--active">Out for Delivery</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total">₹186</div>
+      <span style="font-size: var(--font-sm); color: var(--color-accent); font-weight: var(--weight-semi);">Track Order →</span>
+    </div>
+  </div>
+
+  <!-- AG3: Delivered Orders -->
+  <div class="agg-order-card" data-order-status="delivered">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, var(--color-primary-muted), var(--color-primary-ring));">🍽️</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Andhra Spice Kitchen</div>
+        <div class="agg-order-items">Chicken Biryani × 2, Mirchi Bajji, Buttermilk</div>
+        <div class="agg-order-meta"><span>#ORD-1842</span><span>Yesterday, 1:15 PM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--delivered">Delivered</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total">₹520</div>
+      <div style="display:flex; gap:6px;">
+        <button class="agg-order-rate" onclick="event.stopPropagation()">★ Rate</button>
+        <button class="agg-order-reorder" onclick="event.stopPropagation();window.location.href='storefront.html'">↻ Reorder</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="agg-order-card" data-order-status="delivered">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted));">💊</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Sri Lakshmi Pharmacy</div>
+        <div class="agg-order-items">Himalaya Face Wash, Zincovit, Band-Aid</div>
+        <div class="agg-order-meta"><span>#ORD-1835</span><span>11 Apr, 10:30 AM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--delivered">Delivered</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total">₹345</div>
+      <div style="display:flex; gap:6px;">
+        <button class="agg-order-rate" onclick="event.stopPropagation()">★ Rate</button>
+        <button class="agg-order-reorder" onclick="event.stopPropagation();window.location.href='storefront.html'">↻ Reorder</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="agg-order-card" data-order-status="delivered">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, #FECDD3, #FDA4AF);">🥩</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Bismillah Fresh Meats</div>
+        <div class="agg-order-items">Chicken (1kg), Mutton Keema (500g)</div>
+        <div class="agg-order-meta"><span>#ORD-1828</span><span>10 Apr, 6:45 PM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--delivered">Delivered</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total">₹780</div>
+      <div style="display:flex; gap:6px;">
+        <button class="agg-order-rate" onclick="event.stopPropagation()">★ Rate</button>
+        <button class="agg-order-reorder" onclick="event.stopPropagation();window.location.href='storefront.html'">↻ Reorder</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="agg-order-card" data-order-status="delivered">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, #FDE68A, var(--color-secondary-muted));">🍰</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Sri Krishna Sweets</div>
+        <div class="agg-order-items">Kaju Katli (500g), Mysore Pak (250g)</div>
+        <div class="agg-order-meta"><span>#ORD-1820</span><span>9 Apr, 11:00 AM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--delivered">Delivered</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total">₹485</div>
+      <div style="display:flex; gap:6px;">
+        <button class="agg-order-rate" onclick="event.stopPropagation()">★ Rate</button>
+        <button class="agg-order-reorder" onclick="event.stopPropagation();window.location.href='storefront.html'">↻ Reorder</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="agg-order-card" data-order-status="delivered">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, var(--color-success-light), #A7F3D0);">🏪</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Lakshmi General Store</div>
+        <div class="agg-order-items">Toor Dal 1kg, Rice 5kg, Sunflower Oil 1L</div>
+        <div class="agg-order-meta"><span>#ORD-1812</span><span>8 Apr, 9:20 AM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--delivered">Delivered</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total">₹645</div>
+      <div style="display:flex; gap:6px;">
+        <button class="agg-order-rate" onclick="event.stopPropagation()">★ Rate</button>
+        <button class="agg-order-reorder" onclick="event.stopPropagation();window.location.href='storefront.html'">↻ Reorder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AG3: Cancelled Order -->
+  <div class="agg-order-card" data-order-status="cancelled" style="opacity: 0.7;">
+    <div class="agg-order-top">
+      <div class="agg-order-icon" style="background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary-muted));">🍕</div>
+      <div class="agg-order-info">
+        <div class="agg-order-store">Pizza Corner Express</div>
+        <div class="agg-order-items">Medium Margherita, Garlic Bread</div>
+        <div class="agg-order-meta"><span>#ORD-1808</span><span>7 Apr, 7:30 PM</span></div>
+      </div>
+      <span class="agg-order-status agg-order-status--cancelled">Cancelled</span>
+    </div>
+    <div class="agg-order-footer">
+      <div class="agg-order-total" style="text-decoration: line-through; color: var(--color-muted);">₹349</div>
+      <span style="font-size: var(--font-xs); color: var(--color-muted);">Refund: ₹349 to UPI</span>
+    </div>
+  </div>
+
   <div style="height:80px"></div>
 </div>
 
@@ -1190,12 +1615,44 @@
   <div class="page-header">
     <div><div class="page-title">My Account</div></div>
   </div>
-  <div class="account-header-card">
-    <div class="account-avatar">👤</div>
-    <div style="font-size: var(--font-2xl); font-weight: var(--weight-bold); color: var(--color-dark);">Guest User</div>
-    <div style="font-size: var(--font-sm); color: var(--color-muted); margin-top: 4px;">Login to track orders & get offers</div>
-    <button class="btn btn--primary btn--full" style="margin-top: 16px;">Login with OTP</button>
+
+  <!-- AG4: Guest State (hidden when logged in) -->
+  <div class="account-guest" id="accountGuest">
+    <div class="account-header-card">
+      <div class="account-avatar">👤</div>
+      <div style="font-size: var(--font-2xl); font-weight: var(--weight-bold); color: var(--color-dark);">Guest User</div>
+      <div style="font-size: var(--font-sm); color: var(--color-muted); margin-top: 4px;">Login to track orders & get offers</div>
+      <button class="btn btn--primary btn--full" style="margin-top: 16px;" onclick="simulateAggLogin()">Login with OTP</button>
+    </div>
   </div>
+
+  <!-- AG4: Logged-in State -->
+  <div class="account-logged-in" id="accountLoggedIn">
+    <div class="account-header-card">
+      <div class="account-avatar" style="background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-muted));">🧑</div>
+      <div style="font-size: var(--font-2xl); font-weight: var(--weight-bold); color: var(--color-dark);">Sudhakara</div>
+      <div style="font-size: var(--font-sm); color: var(--color-muted); margin-top: 4px;">+91 89289 56128 · sudhakara@email.com</div>
+    </div>
+
+    <!-- AG4: Wallet Balance -->
+    <div class="account-wallet-card">
+      <div class="account-wallet-icon">💰</div>
+      <div class="account-wallet-info">
+        <div class="account-wallet-label">Wallet Balance</div>
+        <div class="account-wallet-bal">₹145</div>
+      </div>
+      <span style="font-size: var(--font-sm); color: #92400E; font-weight: var(--weight-semi);">View History →</span>
+    </div>
+
+    <!-- AG4: Saved Preferences -->
+    <div class="account-pref-row">
+      <span class="account-pref-pill">🟢 Vegetarian</span>
+      <span class="account-pref-pill" style="background: var(--color-primary-light); color: var(--color-primary-dark);">⚠️ Peanut Allergy</span>
+      <span class="account-pref-pill account-pref-pill--lang">🌐 English</span>
+    </div>
+  </div>
+
+  <!-- Menu (always visible) -->
   <div class="account-menu">
     <div class="account-menu-item" onclick="go('orders')">
       <span class="account-menu-icon">📦</span>
@@ -1210,6 +1667,21 @@
     <div class="account-menu-item" onclick="go('offers')">
       <span class="account-menu-icon">🎟️</span>
       <div class="account-menu-text"><div class="account-menu-label">Offers & Deals</div><div class="account-menu-desc">View available offers & discounts</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item" id="accountLoggedMenu1" style="display:none;">
+      <span class="account-menu-icon">❤️</span>
+      <div class="account-menu-text"><div class="account-menu-label">Favorite Stores</div><div class="account-menu-desc">3 stores saved</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item" id="accountLoggedMenu2" style="display:none;">
+      <span class="account-menu-icon">🎫</span>
+      <div class="account-menu-text"><div class="account-menu-label">Delivery Pass</div><div class="account-menu-desc">Free delivery on all orders</div></div>
+      <span class="account-menu-arrow">→</span>
+    </div>
+    <div class="account-menu-item" id="accountLoggedMenu3" style="display:none;">
+      <span class="account-menu-icon">🔔</span>
+      <div class="account-menu-text"><div class="account-menu-label">Notifications</div><div class="account-menu-desc">Order updates & offers</div></div>
       <span class="account-menu-arrow">→</span>
     </div>
     <div class="account-menu-item" onclick="go('help')">
@@ -1530,6 +2002,13 @@
     </div>
   </div>
 
+  <!-- AG2: Open/Closed Status Banner -->
+  <div class="sd-status-banner sd-status-banner--open" id="sdStatusBanner">
+    <span class="sd-status-dot"></span>
+    <span>Open Now</span>
+    <span style="font-weight: var(--weight-regular); opacity: 0.8;">· Closes at 10:00 PM</span>
+  </div>
+
   <!-- Stats -->
   <div class="sd-stats">
     <div class="sd-stat">
@@ -1547,6 +2026,28 @@
     <div class="sd-stat">
       <div class="sd-stat-val">₹25</div>
       <div class="sd-stat-label">Del. fee</div>
+    </div>
+  </div>
+
+  <!-- AG2: Store Photos -->
+  <div style="padding: var(--space-md) 0 0;">
+    <div class="sd-photos-scroll">
+      <div class="sd-photo-thumb" style="background: linear-gradient(135deg, var(--color-success-light), var(--color-success-muted));">🏪</div>
+      <div class="sd-photo-thumb" style="background: linear-gradient(135deg, var(--color-accent-light), #BFDBFE);">💊</div>
+      <div class="sd-photo-thumb" style="background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary-muted));">🧴</div>
+      <div class="sd-photo-thumb" style="background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-muted));">🩺</div>
+      <div class="sd-photo-thumb" style="background: linear-gradient(135deg, #E0E7FF, #C7D2FE);">📦</div>
+    </div>
+  </div>
+
+  <!-- AG2: Cuisine/Category Tags -->
+  <div style="padding: var(--space-sm) var(--space-lg) 0;">
+    <div class="sd-cuisine-tags">
+      <span class="sd-cuisine-tag">Pharmacy</span>
+      <span class="sd-cuisine-tag">Wellness</span>
+      <span class="sd-cuisine-tag">Ayurvedic</span>
+      <span class="sd-cuisine-tag">Personal Care</span>
+      <span class="sd-cuisine-tag">Baby Care</span>
     </div>
   </div>
 
@@ -1583,11 +2084,53 @@
   </div>
 
   <!-- Badges -->
-  <div style="padding: 0 var(--space-lg) var(--space-lg); display: flex; gap: 8px; flex-wrap: wrap;">
+  <div style="padding: 0 var(--space-lg) var(--space-sm); display: flex; gap: 8px; flex-wrap: wrap;">
     <span class="badge badge--organic">✓ Verified Store</span>
     <span class="badge badge--merchant">⚡ Fast Delivery</span>
     <span class="badge" style="background: var(--color-whatsapp-light); color: var(--color-whatsapp-dark);">📱 WhatsApp Orders</span>
     <span class="badge badge--paid">🔥 Popular</span>
+  </div>
+
+  <!-- AG2: FSSAI / License Badge -->
+  <div style="padding: 0 var(--space-lg) var(--space-lg);">
+    <div class="sd-fssai-badge">
+      <span>🏛️</span>
+      <span>Drug License:</span>
+      <span class="sd-fssai-num">DL-21B-AP-2023-4821</span>
+    </div>
+  </div>
+
+  <!-- AG2: Menu Preview / Categories -->
+  <div class="sd-menu-preview">
+    <div class="sd-section-title">📋 Menu / Categories</div>
+    <div class="sd-menu-cats">
+      <span class="sd-menu-cat active" onclick="switchMenuCat(this, 'popular')">Popular</span>
+      <span class="sd-menu-cat" onclick="switchMenuCat(this, 'medicines')">Medicines</span>
+      <span class="sd-menu-cat" onclick="switchMenuCat(this, 'ayurvedic')">Ayurvedic</span>
+      <span class="sd-menu-cat" onclick="switchMenuCat(this, 'personal')">Personal Care</span>
+      <span class="sd-menu-cat" onclick="switchMenuCat(this, 'baby')">Baby Care</span>
+    </div>
+    <div class="sd-menu-items" id="sdMenuItems">
+      <div class="sd-menu-item">
+        <div><div class="sd-menu-item-name">💊 Dolo 650mg</div><div class="sd-menu-item-desc">Paracetamol · Strip of 15</div></div>
+        <div class="sd-menu-item-price">₹26</div>
+      </div>
+      <div class="sd-menu-item">
+        <div><div class="sd-menu-item-name">🧴 Himalaya Face Wash</div><div class="sd-menu-item-desc">Neem · 150ml</div></div>
+        <div class="sd-menu-item-price">₹185</div>
+      </div>
+      <div class="sd-menu-item">
+        <div><div class="sd-menu-item-name">💉 Zincovit Tablets</div><div class="sd-menu-item-desc">Multivitamin · 15 tabs</div></div>
+        <div class="sd-menu-item-price">₹115</div>
+      </div>
+      <div class="sd-menu-item">
+        <div><div class="sd-menu-item-name">🌿 Ashwagandha</div><div class="sd-menu-item-desc">Organic India · 60 caps</div></div>
+        <div class="sd-menu-item-price">₹340</div>
+      </div>
+    </div>
+    <div style="text-align:center; padding-top: var(--space-md);">
+      <button class="btn btn--ghost" style="font-size: var(--font-sm); padding: 8px 20px;" onclick="window.location.href='storefront.html'">View Full Menu →</button>
+    </div>
   </div>
 
   <!-- Popular Products -->
@@ -1695,6 +2238,17 @@
     <div class="offers-chip" onclick="filterOffers(this,'restaurant')">🍽️ Restaurant</div>
     <div class="offers-chip" onclick="filterOffers(this,'grocery')">🏪 Grocery</div>
     <div class="offers-chip" onclick="filterOffers(this,'bakery')">🍰 Bakery</div>
+  </div>
+
+  <!-- AG5: Sort Controls -->
+  <div class="offers-sort-bar">
+    <span class="offers-sort-label">Sort:</span>
+    <div class="offers-sort-pills">
+      <span class="offers-sort-pill active" onclick="sortOffers(this,'relevance')">Relevance</span>
+      <span class="offers-sort-pill" onclick="sortOffers(this,'discount')">Highest Discount</span>
+      <span class="offers-sort-pill" onclick="sortOffers(this,'expiring')">Expiring Soon</span>
+      <span class="offers-sort-pill" onclick="sortOffers(this,'popularity')">Most Popular</span>
+    </div>
   </div>
 
   <!-- Offer Cards -->
@@ -1847,6 +2401,14 @@
       </div>
       <span class="loc-item-stores">42 stores</span>
     </div>
+    <!-- AG6: Popular stores in Labbipet -->
+    <div class="loc-popular-stores hide-scroll">
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">💊</div>Sri Lakshmi <span class="loc-pop-rating">★4.6</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🍽️</div>Andhra Spice <span class="loc-pop-rating">★4.7</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🥩</div>Bismillah <span class="loc-pop-rating">★4.8</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🍰</div>Krishna Sweets <span class="loc-pop-rating">★4.7</span></div>
+    </div>
+
     <div class="loc-item" onclick="selectLocality('Governorpet, Vijayawada')">
       <span class="loc-item-icon">📍</span>
       <div>
@@ -1855,6 +2417,13 @@
       </div>
       <span class="loc-item-stores">38 stores</span>
     </div>
+    <!-- AG6: Popular stores in Governorpet -->
+    <div class="loc-popular-stores hide-scroll">
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">💊</div>MedPlus <span class="loc-pop-rating">★4.2</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🍕</div>Pizza Corner <span class="loc-pop-rating">★4.3</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🏪</div>Srinivasa SM <span class="loc-pop-rating">★4.5</span></div>
+    </div>
+
     <div class="loc-item" onclick="selectLocality('Brodipet, Vijayawada')">
       <span class="loc-item-icon">📍</span>
       <div>
@@ -1863,6 +2432,13 @@
       </div>
       <span class="loc-item-stores">35 stores</span>
     </div>
+    <!-- AG6: Popular stores in Brodipet -->
+    <div class="loc-popular-stores hide-scroll">
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">💊</div>Vijaya Health <span class="loc-pop-rating">★4.4</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🍛</div>Bawarchi <span class="loc-pop-rating">★4.5</span></div>
+      <div class="loc-pop-store" onclick="event.stopPropagation();go('storedetail')"><div class="loc-pop-icon">🧁</div>Cake Walk <span class="loc-pop-rating">★4.4</span></div>
+    </div>
+
     <div class="loc-item" onclick="selectLocality('Patamata, Vijayawada')">
       <span class="loc-item-icon">📍</span>
       <div>
@@ -2217,6 +2793,139 @@ function allowLocation() {
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('bottomNav').style.display = 'none';
 });
+
+// ═══════════════════════════════════════════════
+// AG1: Advanced Filters
+// ═══════════════════════════════════════════════
+function toggleAdvFilters() {
+  var panel = document.getElementById('advFilterPanel');
+  var btn = document.getElementById('advFilterBtn');
+  var isOpen = panel.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen);
+}
+
+function toggleAdvPill(pill) {
+  var filterGroup = pill.dataset.filter;
+  // For rating/time/price — single select within group
+  if (filterGroup === 'rating' || filterGroup === 'time' || filterGroup === 'price') {
+    document.querySelectorAll('.adv-pill[data-filter="' + filterGroup + '"]').forEach(function(p) {
+      if (p !== pill) p.classList.remove('active');
+    });
+  }
+  pill.classList.toggle('active');
+}
+
+function clearAdvFilters() {
+  document.querySelectorAll('.adv-pill').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('advFilterBtn').classList.remove('has-filters');
+}
+
+function applyAdvFilters() {
+  var activeCount = document.querySelectorAll('.adv-pill.active').length;
+  var btn = document.getElementById('advFilterBtn');
+  if (activeCount > 0) {
+    btn.classList.add('has-filters');
+    btn.innerHTML = '🎛️ Filters (' + activeCount + ')';
+  } else {
+    btn.classList.remove('has-filters');
+    btn.innerHTML = '🎛️ Filters';
+  }
+  document.getElementById('advFilterPanel').classList.remove('open');
+  btn.setAttribute('aria-expanded', 'false');
+}
+
+// ═══════════════════════════════════════════════
+// AG2: Menu Category Switcher
+// ═══════════════════════════════════════════════
+var menuData = {
+  popular: [
+    { icon: '💊', name: 'Dolo 650mg', desc: 'Paracetamol · Strip of 15', price: '₹26' },
+    { icon: '🧴', name: 'Himalaya Face Wash', desc: 'Neem · 150ml', price: '₹185' },
+    { icon: '💉', name: 'Zincovit Tablets', desc: 'Multivitamin · 15 tabs', price: '₹115' },
+    { icon: '🌿', name: 'Ashwagandha', desc: 'Organic India · 60 caps', price: '₹340' }
+  ],
+  medicines: [
+    { icon: '💊', name: 'Dolo 650mg', desc: 'Paracetamol · Strip of 15', price: '₹26' },
+    { icon: '💊', name: 'Crocin Advance', desc: 'Paracetamol · Strip of 20', price: '₹32' },
+    { icon: '💊', name: 'Azithral 500', desc: 'Antibiotic · Strip of 3', price: '₹95' },
+    { icon: '💊', name: 'Pan 40mg', desc: 'Pantoprazole · Strip of 15', price: '₹58' }
+  ],
+  ayurvedic: [
+    { icon: '🌿', name: 'Ashwagandha', desc: 'Organic India · 60 caps', price: '₹340' },
+    { icon: '🌿', name: 'Triphala Churna', desc: 'Dabur · 120g', price: '₹85' },
+    { icon: '🌿', name: 'Chyawanprash', desc: 'Dabur · 500g', price: '₹195' }
+  ],
+  personal: [
+    { icon: '🧴', name: 'Himalaya Face Wash', desc: 'Neem · 150ml', price: '₹185' },
+    { icon: '🧴', name: 'Nivea Body Lotion', desc: 'Aloe Vera · 200ml', price: '₹220' },
+    { icon: '🧴', name: 'Colgate MaxFresh', desc: 'Toothpaste · 150g', price: '₹95' }
+  ],
+  baby: [
+    { icon: '🍼', name: 'Cerelac Wheat', desc: 'Nestle · 300g', price: '₹245' },
+    { icon: '🧷', name: 'Pampers Diapers', desc: 'Medium · Pack of 20', price: '₹320' },
+    { icon: '🧴', name: 'Johnson Baby Oil', desc: '200ml', price: '₹155' }
+  ]
+};
+
+function switchMenuCat(el, cat) {
+  document.querySelectorAll('.sd-menu-cat').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  var items = menuData[cat] || menuData.popular;
+  var container = document.getElementById('sdMenuItems');
+  container.innerHTML = items.map(function(item) {
+    return '<div class="sd-menu-item"><div><div class="sd-menu-item-name">' + item.icon + ' ' + item.name + '</div><div class="sd-menu-item-desc">' + item.desc + '</div></div><div class="sd-menu-item-price">' + item.price + '</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// AG3: Order History Tabs
+// ═══════════════════════════════════════════════
+function filterAggOrders(tab, status) {
+  document.querySelectorAll('.agg-orders-tab').forEach(function(t) { t.classList.remove('active'); });
+  tab.classList.add('active');
+  document.querySelectorAll('.agg-order-card').forEach(function(card) {
+    if (status === 'all') {
+      card.style.display = '';
+    } else {
+      card.style.display = card.dataset.orderStatus === status ? '' : 'none';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// AG4: Account Login Simulation
+// ═══════════════════════════════════════════════
+function simulateAggLogin() {
+  document.getElementById('accountGuest').classList.add('hide');
+  document.getElementById('accountLoggedIn').classList.add('show');
+  document.getElementById('accountLoggedMenu1').style.display = '';
+  document.getElementById('accountLoggedMenu2').style.display = '';
+  document.getElementById('accountLoggedMenu3').style.display = '';
+}
+
+// ═══════════════════════════════════════════════
+// AG5: Offers Sort
+// ═══════════════════════════════════════════════
+function sortOffers(pill, sortBy) {
+  document.querySelectorAll('.offers-sort-pill').forEach(function(p) { p.classList.remove('active'); });
+  pill.classList.add('active');
+  // Visual simulation — in production this would re-sort the cards
+  var container = document.getElementById('offersContainer');
+  var cards = Array.from(container.querySelectorAll('.offer-card'));
+  if (sortBy === 'discount') {
+    // Move cards with higher discount keywords first (simulated)
+    cards.sort(function(a, b) {
+      var aText = a.querySelector('.offer-card-title').textContent;
+      var bText = b.querySelector('.offer-card-title').textContent;
+      var aDisc = aText.match(/(\d+)%/) ? parseInt(aText.match(/(\d+)%/)[1]) : 0;
+      var bDisc = bText.match(/(\d+)%/) ? parseInt(bText.match(/(\d+)%/)[1]) : 0;
+      return bDisc - aDisc;
+    });
+  } else if (sortBy === 'expiring') {
+    cards.reverse();
+  }
+  cards.forEach(function(c) { container.appendChild(c); });
+}
 </script>
 
 </body>
