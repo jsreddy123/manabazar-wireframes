@@ -3275,6 +3275,7 @@
   <button onclick="go('cancel')">Cancel</button>
   <button onclick="go('refund')">Refund</button>
   <button onclick="go('tracking')">Tracking</button>
+  <button onclick="go('pickup-qr')">Pickup QR</button>
   <button onclick="go('prescription')">Rx Upload</button>
   <button onclick="go('referral')">Referral</button>
   <button onclick="openScratch()">Scratch</button>
@@ -4231,9 +4232,69 @@
     <div class="tip-sub">100% goes to your delivery partner</div>
   </div>
 
+  <!-- ═══ DELIVERY MODE PICKER — honest filtering by shop setup + your pincode ═══ -->
+  <div class="wf-label" data-wf="C2-FULFILLMENT" data-wf-color="amber" style="margin: 12px 16px; padding: 14px; background: var(--color-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+    <div style="font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-dark); margin-bottom: 4px;">How do you want it?</div>
+    <div style="font-size: var(--font-xs); color: var(--color-muted); margin-bottom: 10px;">Options shown match <strong>Sri Lakshmi Pharmacy's</strong> setup + your pincode (520010).</div>
+
+    <!-- Mode: Pickup (recommended, ₹20 off) -->
+    <label style="display:flex; align-items:flex-start; gap:10px; padding:10px; border:2px solid var(--color-primary); border-radius: var(--radius-sm); background: var(--color-primary-light); cursor: pointer; margin-bottom: 6px;">
+      <input type="radio" name="delMode" checked style="margin-top:2px; accent-color:var(--color-primary);" onchange="document.getElementById('selectedModeFoot').textContent='Pickup · 6pm slot';">
+      <div style="flex:1;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+          <div style="font-size: var(--font-sm); font-weight: var(--weight-bold); color: var(--color-dark);">🛍️ Pickup at Store</div>
+          <div style="font-size: var(--font-xs); font-weight: var(--weight-bold); color: var(--color-success-dark);">₹20 OFF</div>
+        </div>
+        <div style="font-size: 11px; color: var(--color-body); margin-top: 2px;">1.2 km away · Ready in 25 min · Skip the queue with QR</div>
+      </div>
+    </label>
+
+    <!-- Mode: Home delivery (shop's own rider or shared) -->
+    <label style="display:flex; align-items:flex-start; gap:10px; padding:10px; border:1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 6px;">
+      <input type="radio" name="delMode" style="margin-top:2px; accent-color:var(--color-primary);" onchange="document.getElementById('selectedModeFoot').textContent='Home delivery · Ramesh (Shared)';">
+      <div style="flex:1;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+          <div style="font-size: var(--font-sm); font-weight: var(--weight-semi); color: var(--color-dark);">🛵 Home delivery</div>
+          <div style="font-size: var(--font-xs); color: var(--color-dark); font-weight: var(--weight-semi);">+₹25</div>
+        </div>
+        <div style="font-size: 11px; color: var(--color-body); margin-top: 2px;">Shop's shared rider (Ramesh) · 30–45 min · WhatsApp updates</div>
+      </div>
+    </label>
+
+    <!-- Mode: Porter on-demand (customer pays) -->
+    <label style="display:flex; align-items:flex-start; gap:10px; padding:10px; border:1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 6px;">
+      <input type="radio" name="delMode" style="margin-top:2px; accent-color:var(--color-primary);" onchange="document.getElementById('selectedModeFoot').textContent='Porter on-demand · ~35 min';">
+      <div style="flex:1;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+          <div style="font-size: var(--font-sm); font-weight: var(--weight-semi); color: var(--color-dark);">🚴 Porter on-demand</div>
+          <div style="font-size: var(--font-xs); color: var(--color-dark); font-weight: var(--weight-semi);">+₹55</div>
+        </div>
+        <div style="font-size: 11px; color: var(--color-body); margin-top: 2px;">Instant assignment · Live tracking · ~30–45 min</div>
+      </div>
+    </label>
+
+    <!-- Mode: Send to a Friend (QR link — covers elderly/busy) -->
+    <label style="display:flex; align-items:flex-start; gap:10px; padding:10px; border:1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer;">
+      <input type="radio" name="delMode" style="margin-top:2px; accent-color:var(--color-primary);" onchange="document.getElementById('selectedModeFoot').textContent='Send to friend · Free · Share QR';">
+      <div style="flex:1;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+          <div style="font-size: var(--font-sm); font-weight: var(--weight-semi); color: var(--color-dark);">👥 Send to a Friend</div>
+          <div style="font-size: var(--font-xs); font-weight: var(--weight-bold); color: var(--color-success-dark);">FREE</div>
+        </div>
+        <div style="font-size: 11px; color: var(--color-body); margin-top: 2px;">Share QR on WhatsApp · anyone can collect for you · ₹20 off</div>
+      </div>
+    </label>
+
+    <!-- Fallback card — hidden unless no mode matches customer's pincode -->
+    <div style="display:none; margin-top:10px; padding:10px 12px; background:linear-gradient(135deg,#FFF7ED,#FEF3C7); border:1px solid #FDE68A; border-radius:var(--radius-sm);">
+      <div style="font-size: 11px; font-weight: var(--weight-bold); color: #78350F;">ℹ️ Only pickup available at this shop for your area</div>
+      <div style="font-size: 10px; color: #78350F; margin-top:2px; line-height:1.5;">This shop doesn't deliver to 520010. Choose Pickup or <a href="#" style="color:var(--color-primary); font-weight:600;">browse 4 similar shops that deliver here →</a></div>
+    </div>
+  </div>
+
   <!-- Delivery Slot Picker Trigger -->
   <div class="coupon-strip" onclick="openSlotPicker()" style="margin-top:0;">
-    <div class="coupon-strip-left"><span style="font-size:20px;">🕐</span><div><div class="coupon-strip-text">Choose Delivery Slot</div><div class="coupon-strip-sub" id="selectedSlotText" style="color:var(--color-accent);">Express · Within 30 min</div></div></div>
+    <div class="coupon-strip-left"><span style="font-size:20px;">🕐</span><div><div class="coupon-strip-text">Choose Time Slot</div><div class="coupon-strip-sub" id="selectedSlotText" style="color:var(--color-accent);">Today · Pickup at 6:00 PM</div></div></div>
     <span style="font-size:16px;color:var(--color-subtle);">›</span>
   </div>
 
@@ -4656,13 +4717,161 @@
 
     <div class="confirm-actions">
       <button class="btn btn--whatsapp btn--full" onclick="window.open('https://wa.me/918928956128?text=Hi%2C%20I%20placed%20order%20%23VJA-2026-1847.%20Please%20confirm.','_blank')">📱 Contact Merchant via WhatsApp</button>
-      <button class="btn btn--primary btn--full" onclick="go('tracking')">📦 Track Live on Map</button>
+      <button class="btn btn--primary btn--full" onclick="go('pickup-qr')">🛍️ View Pickup Pass (QR)</button>
+      <button class="btn btn--outline btn--full" onclick="go('tracking')" style="color: var(--color-muted); border-color: var(--color-divider);">📦 Track Live on Map (Home Delivery)</button>
       <button class="btn btn--outline btn--full" onclick="go('cancel')" style="color: var(--color-muted); border-color: var(--color-divider);">Cancel Order</button>
       <button class="btn btn--ghost btn--full" onclick="go('home')">🏠 Back to Store</button>
     </div>
 
     <div style="margin: var(--space-2xl) 0; padding: var(--space-lg); border-radius: var(--radius-md); background: var(--color-bg-warm); text-align: center;">
       <div style="font-size: var(--font-md); color: var(--color-muted);">Are you a merchant? <a href="aggregator.html" style="color: var(--color-primary); font-weight: var(--weight-semi);">List your store FREE →</a></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     7b. PICKUP QR — shown when customer chose "Pickup at Store"
+         Single source of truth for collection: QR + order ID + status
+         Share-with-friend WhatsApp link covers elderly/disabled pickup
+     ================================================================ -->
+<div class="screen" id="s-pickup-qr">
+  <div class="page-header">
+    <button class="back-btn" aria-label="Go back" onclick="go('confirmed')">←</button>
+    <div><div class="page-title">Pickup Pass</div><div class="page-subtitle">Sri Lakshmi Pharmacy · 1.2 km</div></div>
+  </div>
+
+  <div class="confirm-pad">
+
+    <!-- Status badge -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:var(--space-md);">
+      <span id="pickupStatusDot" style="width:10px;height:10px;border-radius:50%;background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,0.2);animation:pulse 1.6s infinite;"></span>
+      <span id="pickupStatusLabel" style="font-size:var(--font-sm);font-weight:var(--weight-bold);color:#92400E;text-transform:uppercase;letter-spacing:0.5px;">Preparing — ready by 6:00 PM</span>
+    </div>
+
+    <!-- QR card -->
+    <div class="confirm-card wf-label" data-wf="PQR1-CODE" data-wf-color="green" style="text-align:center;padding:var(--space-xl);">
+      <div style="font-size:var(--font-xs);color:var(--color-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:var(--space-sm);">Show this at counter</div>
+
+      <!-- QR placeholder (fake pattern — wireframe) -->
+      <div style="width:200px;height:200px;margin:0 auto;background:#fff;border:2px solid var(--color-dark);border-radius:var(--radius-md);position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:12px;background-image:linear-gradient(45deg,#000 25%,transparent 25%,transparent 75%,#000 75%),linear-gradient(45deg,#000 25%,transparent 25%,transparent 75%,#000 75%);background-size:16px 16px;background-position:0 0,8px 8px;opacity:0.85;"></div>
+        <div style="position:absolute;top:6px;left:6px;width:34px;height:34px;background:#fff;border:6px solid #000;"></div>
+        <div style="position:absolute;top:6px;right:6px;width:34px;height:34px;background:#fff;border:6px solid #000;"></div>
+        <div style="position:absolute;bottom:6px;left:6px;width:34px;height:34px;background:#fff;border:6px solid #000;"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <div style="background:#fff;padding:4px 8px;font-size:18px;">🏪</div>
+        </div>
+      </div>
+
+      <div style="font-size:var(--font-2xl);font-weight:var(--weight-bold);color:var(--color-dark);margin-top:var(--space-md);letter-spacing:1.5px;">#VJA-2026-1847</div>
+      <div style="font-size:var(--font-xs);color:var(--color-muted);margin-top:4px;">Order ID · Say this at counter if QR fails</div>
+
+      <!-- Savings callout -->
+      <div style="margin-top:var(--space-md);padding:8px 12px;background:#DCFCE7;border-radius:var(--radius-full);display:inline-flex;align-items:center;gap:6px;">
+        <span style="font-size:14px;">💰</span>
+        <span style="font-size:var(--font-xs);font-weight:var(--weight-bold);color:#166534;">You saved ₹20 by choosing pickup</span>
+      </div>
+    </div>
+
+    <!-- Slot + countdown -->
+    <div class="confirm-card wf-label" data-wf="PQR2-SLOT" data-wf-color="green">
+      <div class="confirm-card-title">Pickup Slot</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-size:var(--font-lg);font-weight:var(--weight-bold);color:var(--color-dark);">Today · 6:00 PM – 6:30 PM</div>
+          <div style="font-size:var(--font-sm);color:var(--color-muted);margin-top:2px;">Arrive any time in the 30-min window</div>
+        </div>
+        <div style="text-align:center;padding:8px 12px;background:var(--color-bg-warm);border-radius:var(--radius-md);min-width:72px;">
+          <div style="font-size:var(--font-xl);font-weight:var(--weight-bold);color:var(--color-primary);" id="pickupCountdown">42</div>
+          <div style="font-size:var(--font-2xs);color:var(--color-muted);text-transform:uppercase;letter-spacing:0.5px;">min left</div>
+        </div>
+      </div>
+      <div style="margin-top:var(--space-sm);font-size:var(--font-xs);color:var(--color-muted);">📍 Store closes at 9:30 PM · Parking at rear · Counter #2</div>
+    </div>
+
+    <!-- Share-with-friend (covers elderly/disabled) -->
+    <div class="confirm-card wf-label" data-wf="PQR3-SHARE" data-wf-color="green" style="background:#F0FDF4;border:1px solid #86EFAC;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:var(--space-sm);">
+        <span style="font-size:24px;">👥</span>
+        <div style="flex:1;">
+          <div style="font-size:var(--font-md);font-weight:var(--weight-bold);color:#166534;">Can't collect yourself?</div>
+          <div style="font-size:var(--font-xs);color:#166534;">Send this pass to family or a friend — they can pick up for you.</div>
+        </div>
+      </div>
+      <button class="btn btn--whatsapp btn--full" onclick="sharePickupPass()">📱 Share pickup pass via WhatsApp</button>
+      <div style="margin-top:6px;font-size:var(--font-2xs);color:#166534;text-align:center;">Link works for one pickup only · Auto-expires at 9:30 PM</div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="track-steps" style="margin-top:var(--space-lg);">
+      <div class="track-steps-title">Status</div>
+      <div class="track-step done">
+        <div class="track-step-dot">✓</div>
+        <div class="track-step-info">
+          <div class="track-step-label">Order Placed</div>
+          <div class="track-step-time">5:18 PM · Paid ₹535 online</div>
+        </div>
+      </div>
+      <div class="track-step done">
+        <div class="track-step-dot">✓</div>
+        <div class="track-step-info">
+          <div class="track-step-label">Merchant Confirmed</div>
+          <div class="track-step-time">5:19 PM · Sri Lakshmi Pharmacy</div>
+        </div>
+      </div>
+      <div class="track-step active">
+        <div class="track-step-dot">📦</div>
+        <div class="track-step-info">
+          <div class="track-step-label">Preparing Your Items</div>
+          <div class="track-step-time">4 items · Ready by 6:00 PM</div>
+        </div>
+      </div>
+      <div class="track-step pending">
+        <div class="track-step-dot">🛍️</div>
+        <div class="track-step-info">
+          <div class="track-step-label">Ready for Collection</div>
+          <div class="track-step-time">You'll get a WhatsApp ping</div>
+        </div>
+      </div>
+      <div class="track-step pending">
+        <div class="track-step-dot">✓</div>
+        <div class="track-step-info">
+          <div class="track-step-label">Collected</div>
+          <div class="track-step-time">Scan QR at counter</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Directions + WhatsApp -->
+    <div class="confirm-card">
+      <div class="confirm-card-title">Getting there</div>
+      <div style="font-size:var(--font-sm);color:var(--color-body);line-height:1.5;margin-bottom:var(--space-sm);">
+        <strong>Sri Lakshmi Pharmacy</strong><br>
+        Shop 12, MG Road, Labbipet, Vijayawada — 520010<br>
+        📞 <a href="tel:+919876543210" style="color:var(--color-primary);">9876543210</a> · 1.2 km from you
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn--outline" style="flex:1;" onclick="window.open('https://maps.google.com/?q=Sri+Lakshmi+Pharmacy+Vijayawada','_blank')">🗺️ Directions</button>
+        <button class="btn btn--whatsapp" style="flex:1;" onclick="window.open('https://wa.me/919876543210?text=Hi%2C%20checking%20if%20order%20%23VJA-2026-1847%20is%20ready','_blank')">💬 WhatsApp</button>
+      </div>
+    </div>
+
+    <!-- Edge-case fallback: too late to collect -->
+    <div class="confirm-card wf-label" data-wf="PQR4-LATE" data-wf-color="amber" style="background:#FFFBEB;border:1px solid #FCD34D;">
+      <div style="font-size:var(--font-sm);color:#92400E;font-weight:var(--weight-semi);margin-bottom:6px;">⏰ Running late?</div>
+      <div style="font-size:var(--font-xs);color:#92400E;line-height:1.5;">Shop holds your items till closing (9:30 PM). After that, we'll refund automatically — no charge for uncollected pickup.</div>
+    </div>
+
+    <div class="confirm-actions">
+      <button class="btn btn--primary btn--full" onclick="simulateReady()">[Demo] Mark as Ready for Collection</button>
+      <button class="btn btn--outline btn--full" onclick="go('cancel')" style="color: var(--color-muted); border-color: var(--color-divider);">Cancel Order</button>
+      <button class="btn btn--ghost btn--full" onclick="go('home')">🏠 Back to Store</button>
+    </div>
+
+    <!-- IMPL-READY wireframe note -->
+    <div class="wf-label" data-wf="PQR-IMPL" data-wf-color="blue" style="margin-top:var(--space-lg);padding:var(--space-sm);background:var(--color-accent-light);border:1px dashed var(--color-accent);border-radius:var(--radius-sm);font-size:var(--font-2xs);color:var(--color-accent-dark);line-height:1.5;">
+      <strong>IMPL:</strong> QR payload = orderId + merchantId + HMAC (server-signed). Merchant scans in m-orders → auto-marks "Collected" + clears inventory hold. Share-link = short URL (/p/&lt;tok&gt;) with same HMAC, single-use. Expires at slot end OR store close (whichever is earlier). Auto-refund cron runs 15 min after closing for uncollected pickups.
     </div>
   </div>
 </div>
@@ -6461,25 +6670,40 @@
     </div>
   </div>
 
-  <!-- Rider Card -->
-  <div class="track-rider-card">
+  <!-- Mode badge: which delivery mode this order is using -->
+  <div class="wf-label" data-wf="TM1-MODE" data-wf-color="blue" style="margin: var(--space-md) var(--space-lg) 0; padding: 8px 12px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: var(--radius-md); display:flex; align-items:center; gap: 8px;">
+    <span style="font-size:18px;">🤝</span>
+    <div style="flex:1;">
+      <div style="font-size:var(--font-sm); font-weight:var(--weight-bold); color:#1E3A8A;">Shared Rider Mode</div>
+      <div style="font-size:var(--font-2xs); color:#1E40AF;">Ramesh covers 3 shops in your area · Rider paid directly by shop</div>
+    </div>
+    <span id="trackModeSwitch" style="font-size:var(--font-2xs); color:#1E40AF; cursor:pointer; text-decoration:underline;" onclick="cycleTrackMode()">Switch view</span>
+  </div>
+
+  <!-- Rider Card (shared rider variant) -->
+  <div class="track-rider-card wf-label" data-wf="TM2-RIDER" data-wf-color="green">
     <div class="track-rider-avatar">🧑</div>
     <div class="track-rider-info">
-      <div class="track-rider-name">Ravi Kumar</div>
-      <div class="track-rider-role">Delivery Partner</div>
-      <div class="track-rider-rating">⭐ 4.8 · 1,200+ deliveries</div>
+      <div class="track-rider-name" id="trackRiderName">Ramesh Kumar</div>
+      <div class="track-rider-role" id="trackRiderRole">Shared Rider · Bike · ₹15/drop</div>
+      <div class="track-rider-rating" id="trackRiderMeta">📞 +91 93456 78901 · ⭐ 4.8 · 340+ drops this month</div>
     </div>
     <div class="track-rider-actions">
-      <button class="track-rider-btn track-rider-btn--call" aria-label="Call rider">📞</button>
-      <button class="track-rider-btn track-rider-btn--chat" aria-label="Chat with rider on WhatsApp" onclick="window.open('https://wa.me/918928956128?text=Hi%20Ravi%2C%20where%20are%20you%20with%20my%20order%3F','_blank')">💬</button>
+      <button class="track-rider-btn track-rider-btn--call" aria-label="Call rider" onclick="window.open('tel:+919345678901','_self')">📞</button>
+      <button class="track-rider-btn track-rider-btn--chat" aria-label="Chat with rider on WhatsApp" onclick="window.open('https://wa.me/919345678901?text=Hi%20Ramesh%2C%20where%20are%20you%20with%20my%20order%20%23VJA-2026-1847%3F','_blank')">💬</button>
     </div>
   </div>
 
-  <!-- T4: OTP for delivery verification -->
+  <!-- TM3: Rider-is-covering-multiple-shops transparency -->
+  <div class="wf-label" data-wf="TM3-CONVOY" data-wf-color="amber" style="margin: 0 var(--space-lg) var(--space-md); padding: 8px 12px; background:#FFFBEB; border:1px dashed #FCD34D; border-radius: var(--radius-sm); font-size: var(--font-2xs); color:#92400E; line-height:1.5;">
+    <strong>Why this wait?</strong> Ramesh is also dropping 1 parcel for Krishna Bakery on the way. This keeps your delivery fee low (₹25 vs ₹55 Porter). ETA still under 25 min.
+  </div>
+
+  <!-- T4: OTP for delivery verification — MUST be given to rider on handover -->
   <div class="track-otp wf-label" data-wf="T4-OTP" data-wf-color="green">
-    <div class="track-otp-label">Share this PIN with your delivery partner</div>
-    <div class="track-otp-code">4829</div>
-    <div class="track-otp-label">Do not share with anyone else</div>
+    <div class="track-otp-label">Rider must enter this PIN on their phone to mark delivered</div>
+    <div class="track-otp-code">4127</div>
+    <div class="track-otp-label">Proof-of-delivery · Do NOT share before you receive the parcel</div>
   </div>
 
   <!-- T1: Adaptive timeline steps per business + T2: Kitchen status -->
@@ -7105,7 +7329,7 @@
 
 <!-- ======== Navigation JS ======== -->
 <script>
-const screens = ['home','detail','cart','coupon','payment','whatsapp','reviews','confirmed','login','address','orders','profile','language','notifications','wishlist','help','cancel','refund','tracking','prescription','referral','savings','deliverypass'];
+const screens = ['home','detail','cart','coupon','payment','whatsapp','reviews','confirmed','login','address','orders','profile','language','notifications','wishlist','help','cancel','refund','tracking','prescription','referral','savings','deliverypass','pickup-qr'];
 function go(name) {
   screens.forEach(s => document.getElementById('s-' + s).classList.remove('active'));
   document.getElementById('s-' + name).classList.add('active');
@@ -7879,6 +8103,57 @@ function sendImHere(btn) {
   btn.style.borderColor = 'var(--color-success)';
   btn.style.color = 'var(--color-success-dark)';
   btn.style.background = 'var(--color-success-light)';
+}
+
+// ── PQR3: Share pickup pass with family/friend ──
+function sharePickupPass() {
+  const text = 'Please pick up my order #VJA-2026-1847 from Sri Lakshmi Pharmacy before 6:30 PM. Show this link at the counter: https://manabazar.in/p/vja1847  Thank you! 🙏';
+  if (navigator.share) {
+    navigator.share({ title: 'ManaBazar Pickup Pass', text: text });
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  }
+}
+
+// ── TM1: Cycle delivery-mode view on tracking screen (demo) ──
+const _trackModes = [
+  { badge: '🤝', title: 'Shared Rider Mode', sub: 'Ramesh covers 3 shops in your area · Rider paid directly by shop', name: 'Ramesh Kumar', role: 'Shared Rider · Bike · ₹15/drop', meta: '📞 +91 93456 78901 · ⭐ 4.8 · 340+ drops this month', convoy: '<strong>Why this wait?</strong> Ramesh is also dropping 1 parcel for Krishna Bakery on the way. This keeps your delivery fee low (₹25 vs ₹55 Porter). ETA still under 25 min.' },
+  { badge: '🛵', title: 'Self-delivery Mode', sub: 'Shop is sending items with their own rider', name: 'Suresh (Shop staff)', role: 'Sri Lakshmi Pharmacy · Bike', meta: '📞 +91 98765 43210 · Employee of the shop · No rider fee', convoy: '<strong>Direct from shop</strong> — no third party. Slight delay possible if shop is busy. Call store if >40 min.' },
+  { badge: '🚴', title: 'Porter On-demand', sub: 'You opted for paid express delivery (+₹55)', name: 'Auto-assigned rider', role: 'Porter partner · Bike', meta: '📞 Will share on pickup · ⭐ 4.6 · Rider assigned when parcel ready', convoy: '<strong>Porter guarantees</strong> under-30-min delivery. If rider is unassigned in 5 min, we auto-refund the ₹55 fee.' }
+];
+let _trackModeIdx = 0;
+function cycleTrackMode() {
+  _trackModeIdx = (_trackModeIdx + 1) % _trackModes.length;
+  const m = _trackModes[_trackModeIdx];
+  const badge = document.querySelector('[data-wf="TM1-MODE"]');
+  if (badge) {
+    badge.querySelector('span').textContent = m.badge;
+    badge.querySelectorAll('div > div')[0].textContent = m.title;
+    badge.querySelectorAll('div > div')[1].textContent = m.sub;
+  }
+  document.getElementById('trackRiderName').textContent = m.name;
+  document.getElementById('trackRiderRole').textContent = m.role;
+  document.getElementById('trackRiderMeta').textContent = m.meta;
+  const convoy = document.querySelector('[data-wf="TM3-CONVOY"]');
+  if (convoy) convoy.innerHTML = m.convoy;
+}
+
+// ── PQR: Simulate "ready for collection" (demo) ──
+function simulateReady() {
+  const dot = document.getElementById('pickupStatusDot');
+  const label = document.getElementById('pickupStatusLabel');
+  if (!dot || !label) return;
+  dot.style.background = 'var(--color-success)';
+  dot.style.boxShadow = '0 0 0 4px rgba(22,163,74,0.2)';
+  label.textContent = 'Ready — collect now';
+  label.style.color = 'var(--color-success-dark)';
+  const steps = document.querySelectorAll('#s-pickup-qr .track-step');
+  if (steps.length >= 4) {
+    steps[2].classList.remove('active'); steps[2].classList.add('done');
+    steps[2].querySelector('.track-step-dot').textContent = '✓';
+    steps[3].classList.remove('pending'); steps[3].classList.add('active');
+    steps[3].querySelector('.track-step-time').textContent = 'Show QR at counter now';
+  }
 }
 
 // ── P1: Apply wallet credits ──
