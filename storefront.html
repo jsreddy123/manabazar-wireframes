@@ -7,6 +7,173 @@
 <link rel="stylesheet" href="design-system.css">
 <style>
   /* ================================================================
+     YOUCLOUDPAY "YOUSHOP" BRAND THEME — override layer (2026-06-12)
+     Re-skins the wireframe to the YouCloudPay storefront look & feel.
+     Adopted from Retail-Webshop-v2/src/utils/themeColors.ts + themeShadows.
+     Scoped to storefront.html only — aggregator/merchant are untouched.
+     Warm red+saffron  ->  cool cyan/teal + clean cool grays.
+     ================================================================ */
+  :root {
+    /* ── Primary: YouCloudPay cyan/teal ── */
+    --color-primary:        #24AEDF;
+    --color-primary-dark:   #17A5B0;
+    --color-primary-darker: #0E7E97;
+    --color-primary-light:  #EAF7FC;
+    --color-primary-muted:  #CDECF7;
+    --color-primary-ring:   #A9DEF0;
+
+    /* ── Secondary: restrained amber (ratings / offers only) ── */
+    --color-secondary:       #FFB400;
+    --color-secondary-dark:  #E09600;
+    --color-secondary-text:  #5C4400;
+    --color-secondary-light: #FFF6E0;
+    --color-secondary-muted: #FFE6A8;
+
+    /* ── Accent: brand teal (replaces competing blue) ── */
+    --color-accent:       #1B949D;
+    --color-accent-dark:  #0F6B72;
+    --color-accent-light: #E2F4F5;
+    --color-accent-muted: #9AD4D8;
+
+    /* ── Success: YouCloudPay green (#33D067 / checkout #198754) ── */
+    --color-success:       #22B45E;
+    --color-success-dark:  #198754;
+    --color-success-light: #E6F7EE;
+    --color-success-muted: #B6E8C9;
+
+    /* ── Warning ── */
+    --color-warning:       #FFB400;
+    --color-warning-dark:  #E09600;
+    --color-warning-light: #FFF6E0;
+
+    /* ── Neutrals: cool gray scale (was warm stone) ── */
+    --color-dark:     #2B3445;
+    --color-text:     #373F50;
+    --color-body:     #4B566B;
+    --color-muted:    #7D879C;
+    --color-subtle:   #AEB4BE;
+    --color-border:   #E3E9EF;
+    --color-divider:  #DAE1E7;
+    --color-surface:  #FFFFFF;
+    --color-bg:       #F6F9FC;
+    --color-bg-warm:  #F3F5F9;
+    --color-bg-tint:  #F6F9FC;
+
+    /* ── Shadows: softer, navy-tinted (airier = less crowded) ── */
+    --shadow-xs:  0 1px 3px rgba(3,0,71,0.06);
+    --shadow-sm:  0 1px 3px rgba(3,0,71,0.09);
+    --shadow-md:  0 4px 16px rgba(43,52,69,0.10);
+    --shadow-lg:  0 8px 24px rgba(3,0,71,0.08);
+    --shadow-xl:  0 15px 50px rgba(0,0,0,0.06);
+    --shadow-primary:   0 4px 16px rgba(36,174,223,0.25);
+    --shadow-secondary: 0 2px 8px rgba(255,180,0,0.28);
+  }
+
+  /* ================================================================
+     DECLUTTER / POLISH LAYER — calmer, more whitespace, flatter
+     Management feedback: "clumsy, crowded". No components removed —
+     visual weight reduced, hierarchy clarified, breathing room added.
+     ================================================================ */
+  /* Calmer 2-stop hero (was saturated 3-stop) */
+  .store-hero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    padding: 18px var(--space-lg) var(--space-md);
+    overflow: hidden;
+  }
+  .store-hero::after { content: ''; position: absolute; top: -46px; right: -34px; width: 150px; height: 150px;
+    border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none; }
+  .store-hero-top, .store-hero-meta { position: relative; z-index: 1; }
+
+  /* ── Loyalty: minimal progress-bar style (from store-2 mockup) ── */
+  .loyalty-bar { height: 7px; border-radius: var(--radius-full); background: var(--color-secondary-light);
+    margin-top: 11px; overflow: hidden; }
+  .loyalty-bar i { display: block; height: 100%; width: 60%; background: var(--color-secondary); border-radius: var(--radius-full); }
+  .loyalty-foot { font-size: var(--font-xs); color: var(--color-muted); margin-top: 8px; }
+  .loyalty-foot b { color: var(--color-secondary-text); font-weight: var(--weight-bold); }
+  /* Lighter, quieter badges — let content breathe */
+  .badge { font-weight: var(--weight-medium); padding: 3px 9px; }
+  .trust-strip { padding: var(--space-sm) var(--space-lg); }
+  .trust-strip-inner { gap: 6px; }
+  /* Flatter cards: hairline cool border, no heavy hover lift */
+  .card { border-color: var(--color-border); }
+  .card--interactive:hover { transform: none; box-shadow: var(--shadow-md); }
+  /* Softer promo block — subtle tint + border, not a loud gradient */
+  .promo-banner {
+    background: var(--color-secondary-light);
+    border: 1px solid var(--color-secondary-muted);
+    box-shadow: none;
+  }
+  /* Consistent vertical rhythm between stacked home sections */
+  .reorder-section, .store-details, .info-bar { padding-top: var(--space-md); padding-bottom: var(--space-md); }
+  /* Quieter section dividers */
+  .info-bar, .store-details, .trust-strip { border-bottom-color: var(--color-border); }
+
+  /* ── Simplified store header: stats folded into hero (5 strips -> 2) ── */
+  .store-verified-inline { display: inline-flex; align-items: center; gap: 3px; font-weight: var(--weight-semi); opacity: 0.95; }
+  .store-hero-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
+    margin-top: 14px; font-size: var(--font-base); font-weight: var(--weight-semi); color: #fff;
+  }
+  .store-hero-meta > span { display: inline-flex; align-items: center; gap: 4px; }
+  .store-hero-meta .star { color: var(--color-secondary); }      /* amber star pops on cyan */
+  .store-hero-meta em { font-style: normal; font-weight: var(--weight-regular); opacity: 0.8; }
+  .store-call-btn {
+    margin-left: auto; width: 32px; height: 32px; border-radius: var(--radius-full);
+    background: var(--color-primary-light); color: var(--color-primary);
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    text-decoration: none; flex-shrink: 0;
+  }
+
+  /* ── Quick-action tiles: promo + prescription folded into one 2-up row ── */
+  .quick-row { display: flex; gap: var(--space-md); margin: 0 var(--space-lg) var(--space-md); }
+  .quick-tile {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-sm);
+    padding: 10px 12px; border-radius: var(--radius-md); cursor: pointer;
+  }
+  .quick-tile .qt-icon { font-size: 22px; flex-shrink: 0; }
+  .quick-tile .qt-title { font-size: var(--font-sm); font-weight: var(--weight-bold); color: var(--color-dark); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .quick-tile .qt-sub { font-size: var(--font-2xs); color: var(--color-body); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Global floating order tracker (Option B) — app-wide while an order is live ── */
+  #orderFab {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px); max-width: calc(var(--max-width) - 32px);
+    display: none; align-items: center; gap: var(--space-sm);
+    padding: 10px 14px; border-radius: var(--radius-full);
+    background: var(--color-success); color: #fff; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(25,135,84,0.35); z-index: 900;
+    animation: fabIn var(--duration-normal) var(--ease-out);
+  }
+  #orderFab.show { display: flex; }
+  #orderFab .order-fab-title { flex: 1; min-width: 0; font-size: var(--font-base); font-weight: var(--weight-semi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #orderFab .order-fab-live { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-2xs); font-weight: var(--weight-bold); background: rgba(255,255,255,0.22); padding: 3px 8px; border-radius: var(--radius-full); flex-shrink: 0; }
+  #orderFab .order-fab-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: liveDot 1s ease infinite; }
+  #orderFab .order-fab-arrow { font-size: 18px; font-weight: var(--weight-bold); flex-shrink: 0; opacity: 0.9; }
+  @keyframes fabIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  /* keep the floating bar from covering the last bit of content */
+  body.has-order-fab .screen.active { padding-bottom: 64px; }
+  /* when the tracker is lifted above a bottom bar (e.g. Home cart bar), clear both */
+  body.fab-lifted .screen.active { padding-bottom: 162px; }
+  /* lift the WhatsApp FAB above the order tracker so they don't overlap in the corner */
+  body.fab-lifted .wa-fab { bottom: 168px; }
+
+  /* ── Products: smaller images so more fit per screen (was square aspect-ratio) ── */
+  .product-img { aspect-ratio: auto; height: 96px; font-size: 30px; }
+  .special-card-img { aspect-ratio: auto; height: 100px; font-size: 30px; }
+  /* "Load more on scroll" hint shown below the grid while more remain */
+  #lazyMore {
+    display: none; text-align: center; padding: var(--space-md) 0 var(--space-xs);
+    font-size: var(--font-sm); color: var(--color-muted); font-weight: var(--weight-medium);
+  }
+  #lazyMore .lazy-dot {
+    display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%;
+    background: var(--color-primary); opacity: 0.4; animation: lazyPulse 1s ease infinite;
+  }
+  #lazyMore .lazy-dot:nth-child(2) { animation-delay: 0.15s; }
+  #lazyMore .lazy-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes lazyPulse { 0%,100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+  /* ================================================================
      STOREFRONT — All screens in one navigable flow
      Uses design-system.css for tokens. Only layout/component CSS here.
      ================================================================ */
@@ -164,8 +331,8 @@
     padding: 3px 8px; border-radius: 6px;
   }
   .product-tag--discount { background: var(--color-primary); color: #fff; }
-  .product-tag--new { background: var(--color-accent); color: #fff; }
-  .product-tag--bogo { background: var(--color-success); color: #fff; }
+  .product-tag--new { background: var(--color-primary); color: #fff; }
+  .product-tag--bogo { background: var(--color-primary); color: #fff; }
 
   /* H1: Veg/Non-veg FSSAI Badge */
   .veg-badge {
@@ -204,7 +371,7 @@
     border: 1.5px solid var(--color-border); background: var(--color-surface); color: var(--color-body);
     cursor: pointer; transition: all var(--duration-fast); min-width: 36px; text-align: center;
   }
-  .weight-pill.active { border-color: var(--color-primary); background: #FEF2F2; color: var(--color-primary); font-weight: var(--weight-bold); }
+  .weight-pill.active { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); font-weight: var(--weight-bold); }
   .weight-pill:hover { border-color: var(--color-primary); }
   .price-per-unit { font-size: var(--font-xs); color: var(--color-subtle); font-weight: var(--weight-regular); }
 
@@ -220,14 +387,14 @@
     border: 2px solid var(--color-border); background: var(--color-surface); color: var(--color-body);
     cursor: pointer; transition: all var(--duration-fast); min-width: 56px; text-align: center;
   }
-  .pd-weight-pill.active { border-color: var(--color-primary); background: #FEF2F2; color: var(--color-primary); font-weight: var(--weight-bold); }
+  .pd-weight-pill.active { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); font-weight: var(--weight-bold); }
   .pd-weight-pill:hover { border-color: var(--color-primary); }
   .pd-weight-note { font-size: var(--font-xs); color: var(--color-subtle); margin-top: 8px; }
 
   /* Fix #11: Stock status indicators */
   .stock-badge { font-size: var(--font-2xs); font-weight: var(--weight-semi); padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; }
   .stock-badge--low { background: #FEF3C7; color: #92400E; }
-  .stock-badge--out { background: #FEE2E2; color: #991B1B; }
+  .stock-badge--out { background: var(--color-bg-warm); color: var(--color-muted); }
   .product-card.out-of-stock { opacity: 0.55; pointer-events: none; }
   .product-card.out-of-stock .add-btn { background: var(--color-bg-tint); color: var(--color-muted); border-color: var(--color-border); pointer-events: auto; cursor: default; }
 
@@ -245,20 +412,20 @@
   /* Loyalty Card */
   .loyalty-card {
     margin: var(--space-lg); padding: var(--space-lg); border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, var(--color-secondary-light) 0%, var(--color-secondary-muted) 100%);
-    border: 1px solid #FCD34D;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);
   }
   .loyalty-head { display: flex; justify-content: space-between; align-items: center; }
-  .loyalty-title { font-size: var(--font-md); font-weight: var(--weight-bold); color: #92400E; }
-  .loyalty-sub { font-size: var(--font-sm); color: #B45309; margin-top: 2px; }
-  .loyalty-count { font-size: 22px; font-weight: var(--weight-black); color: #92400E; }
+  .loyalty-title { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-secondary-text); }
+  .loyalty-sub { font-size: var(--font-sm); color: var(--color-secondary-text); margin-top: 2px; }
+  .loyalty-count { font-size: 22px; font-weight: var(--weight-black); color: var(--color-secondary-text); }
   .loyalty-stamps { display: flex; gap: 6px; margin-top: var(--space-sm); }
   .stamp {
     width: 28px; height: 28px; border-radius: var(--radius-full);
     display: flex; align-items: center; justify-content: center; font-size: 12px;
   }
   .stamp--filled { background: var(--color-secondary-dark); color: #fff; }
-  .stamp--empty  { background: rgba(146,64,14,0.1); color: #D4A574; }
+  .stamp--empty  { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
 
   /* Reviews */
   .reviews { padding: var(--space-lg); background: var(--color-surface); margin-top: var(--space-sm); }
@@ -350,12 +517,17 @@
   /* Cart Bar (on store home) */
   .cart-bar {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: var(--max-width); padding: var(--space-md) var(--space-lg);
+    width: 100%; max-width: var(--max-width);
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    color: #fff; display: flex; justify-content: space-between; align-items: center;
-    z-index: 100; box-shadow: 0 -4px 20px rgba(220,38,38,0.3);
+    color: #fff; z-index: 100; box-shadow: 0 -4px 20px rgba(36,174,223,0.28);
     cursor: pointer; transition: all var(--duration-fast);
   }
+  .cart-freebar { display: flex; align-items: center; gap: 8px; padding: 7px var(--space-lg);
+    background: rgba(0,0,0,0.13); font-size: var(--font-sm); }
+  .cart-fd-track { flex: 1; height: 5px; background: rgba(255,255,255,0.3); border-radius: var(--radius-full); overflow: hidden; }
+  .cart-fd-track i { display: block; height: 100%; width: 88%; background: #fff; border-radius: var(--radius-full); }
+  .cart-freebar b { font-weight: var(--weight-black); }
+  .cart-bar-main { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md) var(--space-lg); }
   .cart-bar:active { filter: brightness(0.95); }
   .cart-count { font-size: var(--font-md); font-weight: var(--weight-semi); }
   .cart-total { font-size: var(--font-sm); opacity: 0.9; }
@@ -813,8 +985,8 @@
   /* C10: Subscription option */
   .cart-subscription {
     margin: var(--space-sm) var(--space-lg); padding: var(--space-md);
-    background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border-radius: var(--radius-md);
-    border: 1px solid #C4B5FD; display: flex; align-items: center; gap: var(--space-md);
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-muted)); border-radius: var(--radius-md);
+    border: 1px solid var(--color-primary-muted); display: flex; align-items: center; gap: var(--space-md);
   }
   .cart-sub-info { flex: 1; }
   .cart-sub-title { font-size: var(--font-sm); font-weight: var(--weight-bold); color: #5B21B6; }
@@ -1016,7 +1188,7 @@
   /* P5: Auto-pay indicator */
   .pay-autopay {
     margin-top: var(--space-sm); padding: 8px var(--space-md);
-    background: #EDE9FE; border-radius: var(--radius-sm); border: 1px solid #C4B5FD;
+    background: var(--color-primary-light); border-radius: var(--radius-sm); border: 1px solid var(--color-primary-muted);
     display: flex; align-items: center; gap: var(--space-sm);
     font-size: var(--font-xs); color: #5B21B6; font-weight: var(--weight-semi);
   }
@@ -1136,7 +1308,7 @@
   /* CF4: Dine-in table info */
   .confirm-dinein {
     margin: var(--space-sm) 0; padding: var(--space-md);
-    background: #EDE9FE; border-radius: var(--radius-md); border: 1px solid #C4B5FD;
+    background: var(--color-primary-light); border-radius: var(--radius-md); border: 1px solid var(--color-primary-muted);
     font-size: var(--font-sm); color: #5B21B6; text-align: center;
   }
 
@@ -1669,12 +1841,12 @@
   }
   .sub-card {
     background: var(--color-surface); border-radius: var(--radius-lg);
-    border: 1.5px solid #DDD6FE; margin-bottom: var(--space-md); overflow: hidden;
+    border: 1.5px solid var(--color-primary-muted); margin-bottom: var(--space-md); overflow: hidden;
   }
   .sub-card-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: var(--space-md) var(--space-lg); background: #F5F3FF;
-    border-bottom: 1px solid #DDD6FE;
+    padding: var(--space-md) var(--space-lg); background: var(--color-accent-light);
+    border-bottom: 1px solid var(--color-primary-muted);
   }
   .sub-card-name { font-size: var(--font-md); font-weight: var(--weight-bold); color: #5B21B6; }
   .sub-card-status {
@@ -1847,8 +2019,8 @@
   /* PR4 — Wallet display */
   .profile-wallet-card {
     display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-    background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
-    border: 1.5px solid #DDD6FE; border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-accent-light), var(--color-primary-light));
+    border: 1.5px solid var(--color-primary-muted); border-radius: var(--radius-md);
     margin-bottom: 8px; cursor: pointer; transition: all var(--duration-fast);
   }
   .profile-wallet-card:active { transform: scale(0.99); }
@@ -2054,11 +2226,17 @@
   /* ================================================================
      D-C6: BUNDLE PRODUCT CARD
      ================================================================ */
-  .bundle-section { padding: 0 var(--space-lg) var(--space-lg); }
+  .bundle-section { padding: 0 0 var(--space-lg) var(--space-lg); }
+  .bundle-scroll {
+    display: flex; gap: var(--space-md); overflow-x: auto;
+    padding: 2px var(--space-lg) 6px 0; scroll-snap-type: x mandatory;
+  }
   .bundle-card {
-    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    background: var(--color-surface);
     border-radius: var(--radius-xl); padding: var(--space-lg);
-    border: 2px solid var(--color-secondary); position: relative; overflow: hidden;
+    border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);
+    position: relative; overflow: hidden;
+    min-width: 300px; max-width: 320px; flex-shrink: 0; scroll-snap-align: start;
   }
   .bundle-badge {
     position: absolute; top: 12px; right: -24px; transform: rotate(45deg);
@@ -2076,9 +2254,9 @@
   }
   .bundle-products::-webkit-scrollbar { display: none; }
   .bundle-product {
-    min-width: 80px; text-align: center; background: rgba(255,255,255,0.7);
+    min-width: 80px; text-align: center; background: var(--color-bg-warm);
     border-radius: var(--radius-md); padding: 8px 6px; flex-shrink: 0;
-    backdrop-filter: blur(4px);
+    border: 1px solid var(--color-border);
   }
   .bundle-product-icon { font-size: 24px; margin-bottom: 4px; }
   .bundle-product-name { font-size: var(--font-2xs); color: var(--color-dark); font-weight: var(--weight-medium); line-height: 1.3; }
@@ -2098,11 +2276,12 @@
   }
   .bundle-add-btn {
     width: 100%; margin-top: var(--space-md); padding: 12px; border: none;
-    background: var(--color-dark); color: #fff; border-radius: var(--radius-md);
+    background: var(--color-primary); color: #fff; border-radius: var(--radius-md);
     font-size: var(--font-md); font-weight: var(--weight-bold); cursor: pointer;
-    transition: all var(--duration-fast);
+    box-shadow: var(--shadow-primary); transition: all var(--duration-fast);
   }
-  .bundle-add-btn:active { transform: scale(0.97); opacity: 0.9; }
+  .bundle-add-btn:hover { background: var(--color-primary-dark); }
+  .bundle-add-btn:active { transform: scale(0.97); }
 
   /* ================================================================
      ORDER CANCELLATION
@@ -2200,7 +2379,7 @@
     background: var(--color-primary); border-color: var(--color-primary); color: #fff;
     animation: pulse 2s infinite;
   }
-  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.3); } 50% { box-shadow: 0 0 0 8px rgba(220,38,38,0); } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(36,174,223,0.3); } 50% { box-shadow: 0 0 0 8px rgba(36,174,223,0); } }
   .refund-step-label { font-size: var(--font-md); font-weight: var(--weight-semi); color: var(--color-dark); }
   .refund-step-time { font-size: var(--font-sm); color: var(--color-muted); margin-top: 2px; }
 
@@ -2286,8 +2465,8 @@
   /* X7 — Subscription savings in savings screen */
   .savings-sub-card {
     margin: 0 var(--space-lg) var(--space-lg); padding: var(--space-lg);
-    background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
-    border: 1.5px solid #DDD6FE; border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--color-accent-light), var(--color-primary-light));
+    border: 1.5px solid var(--color-primary-muted); border-radius: var(--radius-lg);
   }
   .savings-sub-title { font-size: var(--font-md); font-weight: var(--weight-bold); color: #5B21B6; }
   .savings-sub-amount { font-size: var(--font-3xl); font-weight: var(--weight-black); color: #7C3AED; margin-top: 4px; }
@@ -2309,7 +2488,7 @@
   .notif-sub-badge {
     display: inline-block; padding: 2px 8px; border-radius: var(--radius-full);
     font-size: var(--font-2xs); font-weight: var(--weight-bold);
-    background: #F5F3FF; color: #5B21B6;
+    background: var(--color-accent-light); color: #5B21B6;
   }
   .notif-pricedrop-badge {
     display: inline-block; padding: 2px 8px; border-radius: var(--radius-full);
@@ -2483,7 +2662,7 @@
   .track-route {
     position: absolute; top: 50%; left: 18%; width: 50%; height: 4px;
     background: var(--color-primary); border-radius: 2px; transform: translateY(-50%);
-    box-shadow: 0 0 8px rgba(220,38,38,0.3);
+    box-shadow: 0 0 8px rgba(36,174,223,0.3);
   }
   .track-route::after {
     content: ''; position: absolute; right: 0; top: 50%; transform: translate(50%,-50%);
@@ -2608,8 +2787,8 @@
     animation: stepPulse 2s ease infinite;
   }
   @keyframes stepPulse {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(220,38,38,0.2); }
-    50% { box-shadow: 0 0 0 8px rgba(220,38,38,0.1); }
+    0%, 100% { box-shadow: 0 0 0 4px rgba(36,174,223,0.2); }
+    50% { box-shadow: 0 0 0 8px rgba(36,174,223,0.1); }
   }
   .track-step.pending .track-step-dot {
     background: var(--color-bg-warm); color: var(--color-muted); border: 2px solid var(--color-border);
@@ -2651,7 +2830,7 @@
      PRESCRIPTION UPLOAD (s-prescription — Point 10)
      ================================================================ */
   .rx-hero {
-    background: linear-gradient(135deg, var(--color-accent-light) 0%, #EDE9FE 100%);
+    background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-primary-light) 100%);
     padding: var(--space-3xl) var(--space-lg); text-align: center;
   }
   .rx-hero-icon { font-size: 64px; margin-bottom: var(--space-md); }
@@ -3060,7 +3239,7 @@
     font-size: var(--font-2xs); color: var(--color-muted); font-weight: var(--weight-medium);
   }
   .social-proof-hot {
-    color: var(--color-warning-dark); font-weight: var(--weight-bold);
+    color: var(--color-muted); font-weight: var(--weight-semi);
   }
 
   /* ================================================================
@@ -3113,8 +3292,8 @@
      ================================================================ */
   .subscription-section { padding: var(--space-md) var(--space-lg); }
   .sub-card {
-    background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
-    border: 1.5px solid #C4B5FD; border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent-light) 100%);
+    border: 1.5px solid var(--color-primary-muted); border-radius: var(--radius-lg);
     padding: var(--space-md); display: flex; align-items: center; gap: var(--space-md);
     margin-bottom: var(--space-sm); cursor: pointer; transition: all var(--duration-fast);
   }
@@ -3201,7 +3380,7 @@
     border: 1.5px solid var(--color-border); background: var(--color-surface); color: var(--color-body);
     cursor: pointer; transition: all var(--duration-fast); text-align: center;
   }
-  .variant-pill.active { border-color: var(--color-primary); background: #FEF2F2; color: var(--color-primary); font-weight: var(--weight-bold); }
+  .variant-pill.active { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); font-weight: var(--weight-bold); }
 
   /* ================================================================
      H10: Health Kit / Combo Builder
@@ -3209,7 +3388,7 @@
   .kit-builder {
     margin: var(--space-md) var(--space-lg); padding: var(--space-lg);
     border-radius: var(--radius-xl); border: 2px dashed var(--color-accent-muted);
-    background: linear-gradient(135deg, var(--color-accent-light) 0%, #EDE9FE 100%);
+    background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-primary-light) 100%);
   }
   .kit-builder-title { font-size: var(--font-md); font-weight: var(--weight-bold); color: var(--color-accent-dark); }
   .kit-builder-desc { font-size: var(--font-sm); color: var(--color-body); margin-top: 2px; }
@@ -3293,86 +3472,64 @@
   <div class="store-hero">
     <div class="store-hero-top">
       <div class="store-logo">💊</div>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="store-name">Sri Lakshmi Pharmacy</div>
-        <div class="store-category">Pharmacy & Wellness</div>
-        <div class="store-verified">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Verified Store
-        </div>
+        <div class="store-category">Pharmacy & Wellness · <span class="store-verified-inline"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Verified</span></div>
       </div>
       <button class="store-share" aria-label="Share store">↗</button>
     </div>
+    <!-- Stats folded into hero (replaces the separate 4-stat info bar) -->
+    <div class="store-hero-meta">
+      <span><span class="star">★</span> 4.6 <em>(128)</em></span>
+      <span>📍 1.2 km</span>
+      <span>🛵 25 min</span>
+      <span>₹99 min</span>
+    </div>
   </div>
 
-  <div class="info-bar">
-    <div class="info-item"><div class="info-val"><span class="star">★</span> 4.6</div><div class="info-lbl">128 reviews</div></div>
-    <div class="info-item"><div class="info-val">1.2 km</div><div class="info-lbl">Distance</div></div>
-    <div class="info-item"><div class="info-val">25 min</div><div class="info-lbl">Delivery</div></div>
-    <div class="info-item"><div class="info-val">₹99</div><div class="info-lbl">Min order</div></div>
-  </div>
-
+  <!-- Store details collapsed to 2 lines; phone is an icon action; address opens maps -->
   <div class="store-details">
-    <div class="store-detail-row"><span class="icon">📍</span><span>23-4-5, MG Road, Labbipet, Vijayawada — 520010</span></div>
-    <div class="store-detail-row"><span class="icon">🕐</span><span><span class="hours-badge">Open now</span> 8:00 AM – 10:00 PM (Mon–Sat) <span class="urgency-badge urgency-badge--closing">⏰ Closing in 45 min</span></span></div>
-    <div class="store-detail-row"><span class="icon">📞</span><span>+91 98765 43210 · WhatsApp available</span></div>
+    <div class="store-detail-row"><span class="icon">📍</span><a href="https://maps.google.com/?q=MG+Road+Labbipet+Vijayawada+520010" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">MG Road, Labbipet, Vijayawada — 520010</a></div>
+    <div class="store-detail-row"><span class="icon">🕐</span><span><span class="hours-badge">Open now</span> · till 10:00 PM</span><a class="store-call-btn" href="tel:+919876543210" aria-label="Call store · WhatsApp available">📞</a></div>
   </div>
 
-  <!-- Point 17: Active Order ETA Banner -->
-  <div onclick="go('tracking')" style="margin:0 var(--space-lg);padding:var(--space-md) var(--space-lg);background:var(--color-success);border-radius:var(--radius-md);display:flex;align-items:center;gap:var(--space-md);cursor:pointer;color:#fff;" class="wf-label" data-wf="ETA-LIVE" data-wf-color="green">
-    <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;">🛵</div>
-    <div style="flex:1;">
-      <div style="font-size:var(--font-md);font-weight:var(--weight-bold);">Order arriving in 12 min</div>
-      <div style="font-size:var(--font-sm);opacity:0.9;">#VJA-1847 · Ravi is on the way</div>
-    </div>
-    <div style="font-size:var(--font-sm);font-weight:var(--weight-bold);background:rgba(255,255,255,0.2);padding:4px 10px;border-radius:var(--radius-full);display:flex;align-items:center;gap:4px;">
-      <span style="width:6px;height:6px;border-radius:50%;background:#4ade80;animation:liveDot 1s ease infinite;"></span>
-      LIVE
-    </div>
-  </div>
+  <!-- Search moved up: primary action for a large catalog, directly under the store header -->
+  <div class="search-bar"><span class="search-icon">🔍</span><input class="search-input" type="text" placeholder="Search medicines, health products..."></div>
 
-  <div class="trust-strip hide-scroll">
-    <div class="trust-strip-inner">
-      <span class="badge badge--organic">✓ Verified Store</span>
-      <span class="badge badge--organic">🔥 500+ Orders</span>
-      <span class="badge badge--organic">⚡ Fast Dispatch</span>
-      <span class="badge badge--merchant">📋 GST Compliant</span>
-      <span class="badge badge--merchant">💳 Digital Payments</span>
-      <span class="badge badge--paid">🚚 Home Delivery</span>
-      <span class="badge badge--paid">🎁 Loyalty Rewards</span>
-      <span class="badge badge--paid">📱 WhatsApp Orders</span>
+  <!-- Active Order ETA moved OUT of the content stack -> global floating tracker (#orderFab, before </body>) -->
+
+  <!-- Slim promo strip (single line: title + code chip) -->
+  <div class="promo-banner" style="padding:10px var(--space-lg);">
+    <div class="promo-icon" style="font-size:20px;">🎉</div>
+    <div style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span class="promo-title">Ugadi Special — 15% OFF Ayurvedic</span>
+      <span style="font-size:var(--font-2xs);font-weight:var(--weight-bold);background:var(--color-secondary);color:var(--color-secondary-text);padding:2px 8px;border-radius:var(--radius-full);">UGADI15</span>
     </div>
   </div>
 
-  <div class="promo-banner">
-    <div class="promo-icon">🎉</div>
-    <div>
-      <div class="promo-title">Ugadi Special — Flat 15% OFF</div>
-      <div class="promo-desc">On all Ayurvedic products. Use code UGADI15. Valid till Apr 15.</div>
-    </div>
-  </div>
-
-  <!-- Quick Action: Prescription Upload -->
-  <div onclick="go('prescription')" style="margin:0 var(--space-lg);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,#EDE9FE,var(--color-accent-light));border-radius:var(--radius-md);display:flex;align-items:center;gap:var(--space-md);cursor:pointer;transition:all var(--duration-fast);" class="wf-label" data-wf="PHARMA-FEATURE" data-wf-color="purple">
-    <span style="font-size:28px;">📋</span>
-    <div style="flex:1;">
+  <!-- Prescription Upload — own slim full-width row (hero pharmacy action) -->
+  <div onclick="go('prescription')" style="margin:0 var(--space-lg) var(--space-md);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,var(--color-primary-light),var(--color-accent-light));border:1px solid var(--color-primary-muted);border-radius:var(--radius-md);display:flex;align-items:center;gap:var(--space-md);cursor:pointer;transition:all var(--duration-fast);" class="wf-label" data-wf="PHARMA-FEATURE" data-wf-color="purple">
+    <span style="font-size:24px;flex-shrink:0;">📋</span>
+    <div style="flex:1;min-width:0;">
       <div style="font-size:var(--font-md);font-weight:var(--weight-bold);color:var(--color-dark);">Upload Prescription</div>
       <div style="font-size:var(--font-sm);color:var(--color-body);">Snap & order — delivered in 30 min</div>
     </div>
-    <span style="font-size:18px;color:var(--color-accent);">📷</span>
+    <span style="flex-shrink:0;font-size:var(--font-sm);font-weight:var(--weight-bold);color:var(--color-primary);background:var(--color-surface);border:1px solid var(--color-primary-muted);padding:6px 12px;border-radius:var(--radius-full);">Upload ›</span>
   </div>
 
-  <!-- Point 15: Reorder / "Your Usual" Widget -->
-  <div class="reorder-section wf-label" data-wf="AI-REORDER" data-wf-color="blue">
+  <!-- Point 15 + H5 MERGED: "Your Usual" = reorder + monthly refills, de-duped.
+       Both blocks previously listed the SAME two products. Now shown once,
+       with subscription status inline. Full refill management via "Manage refills". -->
+  <div class="reorder-section wf-label" data-wf="AI-REORDER + H5" data-wf-color="blue">
     <div class="section-title">
       <span>🔄 Your Usual</span>
-      <span class="section-link" onclick="go('orders')">Order History ›</span>
+      <span class="section-link" onclick="go('orders')">Manage refills ›</span>
     </div>
     <div class="reorder-card">
       <div class="reorder-card-icon">💊</div>
       <div class="reorder-card-info">
         <div class="reorder-card-name">Dolo 650mg × 2</div>
-        <div class="reorder-card-meta">Last ordered 3 days ago · ₹52</div>
+        <div class="reorder-card-meta">Last ordered 3 days ago · ₹52 · <span style="color:var(--color-muted);font-weight:var(--weight-semi);">🔁 Refill 12 May</span></div>
       </div>
       <button class="reorder-card-btn" onclick="go('cart')">+ Add</button>
     </div>
@@ -3380,7 +3537,7 @@
       <div class="reorder-card-icon">🧪</div>
       <div class="reorder-card-info">
         <div class="reorder-card-name">Zincovit Multivitamin</div>
-        <div class="reorder-card-meta">Monthly refill · ₹115</div>
+        <div class="reorder-card-meta">Every 30 days · ₹115 · <span style="color:var(--color-muted);font-weight:var(--weight-semi);">✓ Auto-renew on</span></div>
       </div>
       <button class="reorder-card-btn" onclick="go('cart')">+ Add</button>
     </div>
@@ -3389,38 +3546,15 @@
     </div>
   </div>
 
-  <!-- H5: Subscription Widget — Monthly Refills -->
-  <div class="subscription-section wf-label" data-wf="H5-SUBSCRIPTION" data-wf-color="purple">
-    <div class="section-title" style="margin-bottom:var(--space-sm);">
-      <span>🔁 Monthly Refills</span>
-      <span class="section-link">Manage ›</span>
+  <!-- Loyalty moved up: grouped with "Your Usual" as a personalized "for you" zone -->
+  <div class="loyalty-card">
+    <div class="loyalty-head">
+      <div><div class="loyalty-title">🎁 Loyalty Rewards</div><div class="loyalty-sub">Buy 10, get 1 FREE order</div></div>
+      <span class="loyalty-count">6/10</span>
     </div>
-    <div class="sub-card" onclick="go('detail')">
-      <div class="sub-card-icon">💊</div>
-      <div class="sub-card-info">
-        <div class="sub-card-name">Dolo 650mg × 2 strips</div>
-        <div class="sub-card-freq">Every 30 days · Next: 12 May</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="sub-card-price">₹52/mo</div>
-        <button class="sub-card-btn" onclick="event.stopPropagation()">Renew</button>
-      </div>
-    </div>
-    <div class="sub-card" onclick="go('detail')">
-      <div class="sub-card-icon">🧪</div>
-      <div class="sub-card-info">
-        <div class="sub-card-name">Zincovit Multivitamin</div>
-        <div class="sub-card-freq">Every 30 days · Auto-renew ON</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="sub-card-price">₹115/mo</div>
-        <span style="font-size:var(--font-2xs);color:var(--color-success);font-weight:var(--weight-semi);">✓ Active</span>
-      </div>
-    </div>
-    <button class="btn btn--ghost btn--full" style="font-size:var(--font-sm);padding:8px;margin-top:var(--space-xs);" onclick="go('profile')">+ Set up new subscription</button>
+    <div class="loyalty-bar"><i></i></div>
+    <div class="loyalty-foot"><b>4 more orders</b> to your free delivery 🎁</div>
   </div>
-
-  <div class="search-bar"><span class="search-icon">🔍</span><input class="search-input" type="text" placeholder="Search medicines, health products..."></div>
 
   <div class="cat-tabs hide-scroll" id="catTabs">
     <button class="cat-tab active" onclick="filterProducts('all')">All</button>
@@ -3432,14 +3566,15 @@
     <button class="cat-tab" onclick="filterProducts('vitamins')">Vitamins</button>
   </div>
 
-  <!-- H7: Dietary / Health Filter Tags -->
-  <div class="filter-tags hide-scroll wf-label" data-wf="H7-FILTERS" data-wf-color="blue">
+  <!-- H7: Dietary / Health filters — collapsed behind a toggle (was an always-on 7-tag row).
+       Trimmed to pharmacy-relevant only: dropped Vegan/Organic (food) + Baby Safe (dup of Baby Care cat). -->
+  <div style="padding:0 var(--space-lg) var(--space-sm);">
+    <button id="filterToggle" onclick="toggleFilterRow()" style="display:inline-flex;align-items:center;gap:6px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-body);font-size:var(--font-sm);font-weight:var(--weight-semi);padding:6px 12px;border-radius:var(--radius-full);cursor:pointer;">⚙ Health filters <span id="filterChevron">▾</span></button>
+  </div>
+  <div class="filter-tags hide-scroll" id="filterTagsRow" style="display:none;">
     <button class="filter-tag active" onclick="toggleFilter(this)">All</button>
     <button class="filter-tag" onclick="toggleFilter(this)">🌿 Sugar-free</button>
     <button class="filter-tag" onclick="toggleFilter(this)">🥜 Nut-free</button>
-    <button class="filter-tag" onclick="toggleFilter(this)">🌱 Vegan</button>
-    <button class="filter-tag" onclick="toggleFilter(this)">🍃 Organic</button>
-    <button class="filter-tag" onclick="toggleFilter(this)">👶 Baby Safe</button>
     <button class="filter-tag" onclick="toggleFilter(this)">💪 Immunity</button>
   </div>
 
@@ -3486,7 +3621,7 @@
       </div>
     </div>
 
-    <div class="section-title" style="padding: var(--space-lg) 0 var(--space-md);" id="productsTitle">All Products <span style="font-size: var(--font-base); color: var(--color-subtle); font-weight: var(--weight-regular);">142 items</span></div>
+    <div class="section-title" style="padding: var(--space-lg) 0 var(--space-md);" id="productsTitle">All Products <span style="font-size: var(--font-base); color: var(--color-subtle); font-weight: var(--weight-regular);">36 items</span></div>
     <div class="products-grid" id="productsGrid">
       <!-- Medicines -->
       <div class="product-card" data-cat="medicines" onclick="go('detail')">
@@ -3645,6 +3780,9 @@
       </div>
     </div>
 
+    <!-- Load-more-on-scroll hint (only in 'All' view; reveals next batch as you scroll) -->
+    <div id="lazyMore"><span class="lazy-dot"></span><span class="lazy-dot"></span><span class="lazy-dot"></span> Scroll for more products</div>
+
     <!-- Search no results empty state -->
     <div class="empty-state" id="searchEmpty" style="display:none;padding:var(--space-2xl) var(--space-lg);">
       <div class="empty-state-icon">🔍</div>
@@ -3653,61 +3791,13 @@
       <button class="btn btn--outline btn--lg" onclick="document.querySelector('.search-input').value='';document.querySelector('.search-input').dispatchEvent(new Event('input'));">Clear Search</button>
     </div>
 
-    <!-- Loyalty Card -->
-    <div class="loyalty-card">
-      <div class="loyalty-head">
-        <div><div class="loyalty-title">🎁 Loyalty Rewards</div><div class="loyalty-sub">Buy 10, get 1 FREE order</div></div>
-        <span class="loyalty-count">6/10</span>
-      </div>
-      <div class="loyalty-stamps">
-        <div class="stamp stamp--filled">✓</div><div class="stamp stamp--filled">✓</div><div class="stamp stamp--filled">✓</div>
-        <div class="stamp stamp--filled">✓</div><div class="stamp stamp--filled">✓</div><div class="stamp stamp--filled">✓</div>
-        <div class="stamp stamp--empty">7</div><div class="stamp stamp--empty">8</div><div class="stamp stamp--empty">9</div>
-        <div class="stamp stamp--empty">🎁</div>
-      </div>
-    </div>
   </div>
 
-  <!-- H8: Recently Viewed -->
-  <div class="rv-section wf-label" data-wf="H8-RECENT" data-wf-color="blue">
-    <div class="section-title" style="margin-bottom:var(--space-sm);padding-right:var(--space-lg);">
-      <span>👁️ Recently Viewed</span>
-      <span class="section-link">Clear ›</span>
-    </div>
-    <div class="rv-scroll hide-scroll">
-      <div class="rv-card" onclick="go('detail')">
-        <div class="rv-card-img">💊</div>
-        <div class="rv-card-name">Dolo 650mg</div>
-        <div class="rv-card-price">₹26</div>
-      </div>
-      <div class="rv-card" onclick="go('detail')">
-        <div class="rv-card-img">🧴</div>
-        <div class="rv-card-name">Face Wash</div>
-        <div class="rv-card-price">₹185</div>
-      </div>
-      <div class="rv-card" onclick="go('detail')">
-        <div class="rv-card-img">🩺</div>
-        <div class="rv-card-name">BP Monitor</div>
-        <div class="rv-card-price">₹1,299</div>
-      </div>
-      <div class="rv-card" onclick="go('detail')">
-        <div class="rv-card-img">🍯</div>
-        <div class="rv-card-name">Dabur Honey</div>
-        <div class="rv-card-price">₹199</div>
-      </div>
-      <div class="rv-card" onclick="go('detail')">
-        <div class="rv-card-img">🌿</div>
-        <div class="rv-card-name">Ashwagandha</div>
-        <div class="rv-card-price">₹195</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- D-C6: Bundle Deals -->
+  <!-- D-C6: Bundle Deals — horizontal scroll carousel -->
   <div class="bundle-section">
-    <div class="section-title" style="margin-bottom: var(--space-md);">🎁 Bundle Deals</div>
-
-    <div class="bundle-card" style="margin-bottom: var(--space-md);">
+    <div class="section-title" style="margin-bottom: var(--space-md); padding-right: var(--space-lg);">🎁 Bundle Deals</div>
+    <div class="bundle-scroll hide-scroll">
+    <div class="bundle-card">
       <div class="bundle-badge">SAVE 25%</div>
       <div class="bundle-title">🏥 Family Health Pack</div>
       <div class="bundle-desc">Everything you need for a healthy household — medicines + vitamins + first-aid</div>
@@ -3741,59 +3831,17 @@
       </div>
       <button class="bundle-add-btn" onclick="addBundle(this, 720)">Add Bundle to Cart 🛒</button>
     </div>
+    </div>
   </div>
 
-  <!-- H10: Health Kit / Combo Builder -->
-  <div class="kit-builder wf-label" data-wf="H10-KIT" data-wf-color="blue">
-    <div class="kit-builder-title">🧰 Build Your Health Kit</div>
-    <div class="kit-builder-desc">Pick one from each category — save 15% on the combo</div>
-    <div class="kit-steps hide-scroll">
-      <div class="kit-step selected" onclick="selectKitStep(this)">
-        <div class="kit-step-icon">💊</div>
-        <div class="kit-step-label">Pain Relief</div>
-        <div class="kit-step-price">₹26</div>
-      </div>
-      <div class="kit-step selected" onclick="selectKitStep(this)">
-        <div class="kit-step-icon">🧪</div>
-        <div class="kit-step-label">Vitamins</div>
-        <div class="kit-step-price">₹115</div>
-      </div>
-      <div class="kit-step" onclick="selectKitStep(this)">
-        <div class="kit-step-icon">🩹</div>
-        <div class="kit-step-label">First Aid</div>
-        <div class="kit-step-price">₹95</div>
-      </div>
-      <div class="kit-step" onclick="selectKitStep(this)">
-        <div class="kit-step-icon">🌿</div>
-        <div class="kit-step-label">Immunity</div>
-        <div class="kit-step-price">₹120</div>
-      </div>
-      <div class="kit-step" onclick="selectKitStep(this)">
-        <div class="kit-step-icon">🩺</div>
-        <div class="kit-step-label">Device</div>
-        <div class="kit-step-price">₹149</div>
-      </div>
+  <!-- Reviews trimmed to a slim trust line (full reviews live on the dedicated Reviews screen) -->
+  <div class="reviews" onclick="go('reviews')" style="cursor:pointer;display:flex;align-items:center;gap:var(--space-md);">
+    <div class="reviews-big" style="margin:0;">4.6</div>
+    <div style="flex:1;min-width:0;">
+      <div class="reviews-stars">★★★★★</div>
+      <div style="font-size:var(--font-sm);color:var(--color-muted);">128 verified reviews · 20-min avg delivery</div>
     </div>
-    <div class="kit-total">
-      <div>
-        <div class="kit-total-label">Kit Total (2 items)</div>
-        <div class="kit-total-save">Save ₹21 with combo</div>
-      </div>
-      <div class="kit-total-price">₹120</div>
-    </div>
-    <button class="kit-add-btn" onclick="addKit(this)">Add Kit to Cart — ₹120</button>
-  </div>
-
-  <!-- Reviews -->
-  <div class="reviews">
-    <div class="section-title">Customer Reviews</div>
-    <div class="reviews-summary">
-      <div><div class="reviews-big">4.6</div><div class="reviews-stars">★★★★★</div></div>
-      <div><div class="reviews-count">128 reviews</div></div>
-    </div>
-    <div class="review-card"><div class="review-head"><span class="review-author">Ramesh K.</span><span class="review-date">2 days ago</span></div><div class="review-stars">★★★★★</div><div class="review-text">Excellent service! Medicines delivered within 20 minutes. Batch numbers and expiry clearly mentioned on bill.</div></div>
-    <div class="review-card"><div class="review-head"><span class="review-author">Priya S.</span><span class="review-date">5 days ago</span></div><div class="review-stars">★★★★</div><div class="review-text">Good pharmacy. They even reminded me about my prescription refill. Loyalty points are a nice touch.</div></div>
-    <div class="reviews-more" onclick="go('reviews')">View all 128 reviews →</div>
+    <span class="reviews-more" style="white-space:nowrap;">View all →</span>
   </div>
 
   <!-- Software Showcase -->
@@ -3808,7 +3856,7 @@
 
   <!-- Footer -->
   <div class="footer">
-    <div class="footer-brand">ManaBazar</div>
+    <div class="footer-brand">Youshop</div>
     <div class="footer-tagline">Local commerce made simple</div>
     <div class="footer-links"><a href="#">About</a><a href="#">Help</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     <div style="margin-top:12px; font-size: var(--font-sm); color: var(--color-muted);">Are you a merchant? <a href="aggregator.html" style="color: var(--color-primary); font-weight: var(--weight-semi);">List your store FREE →</a></div>
@@ -3817,10 +3865,13 @@
   <!-- WhatsApp FAB -->
   <button class="wa-fab" aria-label="Order via WhatsApp">💬</button>
 
-  <!-- Cart Bar -->
+  <!-- Cart Bar with free-delivery nudge (ported from store-1/2 mockups) -->
   <div class="cart-bar" onclick="go('cart')">
-    <div><div class="cart-count">4 items</div><div class="cart-total">₹567 + delivery</div></div>
-    <button class="cart-bar-btn">View Cart →</button>
+    <div class="cart-freebar">🚚 <span class="cart-fd-track"><i></i></span> Add <b>₹33</b> more for <b>FREE delivery</b></div>
+    <div class="cart-bar-main">
+      <div><div class="cart-count">4 items</div><div class="cart-total">₹567 + delivery</div></div>
+      <button class="cart-bar-btn">View Cart →</button>
+    </div>
   </div>
 </div>
 
@@ -4349,7 +4400,7 @@
 
     <!-- X1 — First order coupon -->
     <div class="coupon-card wf-label" data-wf="X1-FIRST" data-wf-color="blue"><div class="coupon-card-stripe coupon-card-stripe--first"></div>
-      <div class="coupon-card-top"><span class="coupon-card-code" style="background: #F5F3FF; color: #5B21B6;">WELCOME20</span><button class="btn btn--outline" style="padding:6px 16px;font-size:var(--font-base);">Apply</button></div>
+      <div class="coupon-card-top"><span class="coupon-card-code" style="background: var(--color-accent-light); color: #5B21B6;">WELCOME20</span><button class="btn btn--outline" style="padding:6px 16px;font-size:var(--font-base);">Apply</button></div>
       <div class="coupon-card-desc">🎉 20% OFF on your first order!</div>
       <div class="coupon-card-conds"><span>• First order only</span><span>• Min order: ₹100</span><span>• Max discount: ₹150</span></div>
       <div class="coupon-card-saving" style="color: #5B21B6;">New user exclusive!</div>
@@ -4401,7 +4452,7 @@
   <div class="pay-wallet wf-label" data-wf="P1-WALLET" data-wf-color="green">
     <div class="pay-wallet-icon">💰</div>
     <div class="pay-wallet-info">
-      <div class="pay-wallet-title">ManaBazar Wallet</div>
+      <div class="pay-wallet-title">Youshop Wallet</div>
       <div class="pay-wallet-bal">Balance: ₹120 (from referrals & scratch cards)</div>
       <div class="pay-wallet-applied" id="walletApplied">✅ ₹120 applied · Pay remaining ₹375 via other method</div>
     </div>
@@ -5562,12 +5613,12 @@
 
     <!-- PR5 — Subscription management link -->
     <div class="profile-menu-item wf-label" data-wf="PR5-SUBS" data-wf-color="purple" onclick="go('orders')">
-      <div class="profile-menu-icon" style="background: #F5F3FF;">🔁</div>
+      <div class="profile-menu-icon" style="background: var(--color-accent-light);">🔁</div>
       <div>
         <div class="profile-menu-label">My Subscriptions</div>
         <div class="profile-menu-desc">1 active · Next: Dolo 15 Apr</div>
       </div>
-      <span class="profile-menu-badge" style="background: #F5F3FF; color: #5B21B6;">1 Active</span>
+      <span class="profile-menu-badge" style="background: var(--color-accent-light); color: #5B21B6;">1 Active</span>
     </div>
   </div>
 
@@ -5681,7 +5732,7 @@
     </div>
 
     <div class="profile-menu-item" onclick="go('language')">
-      <div class="profile-menu-icon" style="background: #EDE9FE;">🌐</div>
+      <div class="profile-menu-icon" style="background: var(--color-primary-light);">🌐</div>
       <div>
         <div class="profile-menu-label">Language</div>
         <div class="profile-menu-desc">English · తెలుగు</div>
@@ -5756,7 +5807,7 @@
 
   <!-- App Version -->
   <div style="text-align: center; padding: var(--space-md); font-size: var(--font-xs); color: var(--color-subtle);">
-    Sri Lakshmi Pharmacy · v1.0.0<br>Powered by ManaBazar
+    Sri Lakshmi Pharmacy · v1.0.0<br>Powered by Youshop
   </div>
 
   <div style="height:20px;"></div>
@@ -5954,7 +6005,7 @@
 
     <!-- X9 — Subscription reminder notification -->
     <div class="notif-card wf-label" data-wf="X9-SUB-REMIND" data-wf-color="purple" data-notif-type="orders">
-      <div class="notif-icon" style="background: #F5F3FF;">🔁</div>
+      <div class="notif-icon" style="background: var(--color-accent-light);">🔁</div>
       <div>
         <div class="notif-title">Subscription Delivery Tomorrow <span class="notif-sub-badge">AUTO</span></div>
         <div class="notif-text">Dolo 650mg auto-delivery scheduled for tomorrow 9-11 AM. Tap to modify or skip.</div>
@@ -5973,7 +6024,7 @@
     </div>
 
     <div class="notif-card" data-notif-type="offers">
-      <div class="notif-icon" style="background: #EDE9FE;">🏥</div>
+      <div class="notif-icon" style="background: var(--color-primary-light);">🏥</div>
       <div>
         <div class="notif-title">New Bundle Deal!</div>
         <div class="notif-text">Family Health Pack — 5 essentials at 25% off. ₹225 only.</div>
@@ -6256,7 +6307,7 @@
       <span class="help-topic-arrow">→</span>
     </div>
     <div class="help-topic" onclick="go('profile')">
-      <div class="help-topic-icon" style="background: #EDE9FE;">👤</div>
+      <div class="help-topic-icon" style="background: var(--color-primary-light);">👤</div>
       <div><div class="help-topic-label">Account & Profile</div><div class="help-topic-desc">Edit profile, addresses, login issues</div></div>
       <span class="help-topic-arrow">→</span>
     </div>
@@ -6296,7 +6347,7 @@
     </details>
     <details class="help-faq-item">
       <summary class="help-faq-q">How do refunds work?</summary>
-      <div class="help-faq-a">Refunds for cancelled orders are processed within 3-5 business days to your original payment method, or instantly to your ManaBazar wallet.</div>
+      <div class="help-faq-a">Refunds for cancelled orders are processed within 3-5 business days to your original payment method, or instantly to your Youshop wallet.</div>
     </details>
     <details class="help-faq-item">
       <summary class="help-faq-q">Do I need a prescription?</summary>
@@ -6965,7 +7016,7 @@
   <div class="ref-hero">
     <div class="ref-hero-icon">🎁</div>
     <div class="ref-hero-title">Give ₹50, Get ₹50</div>
-    <div class="ref-hero-sub">Share ManaBazar with friends. When they order, you both earn ₹50!</div>
+    <div class="ref-hero-sub">Share Youshop with friends. When they order, you both earn ₹50!</div>
   </div>
 
   <!-- Referral Code Card -->
@@ -6975,7 +7026,7 @@
     <div class="ref-code-copied" id="refCopied">✓ Copied to clipboard!</div>
 
     <div class="ref-share-btns">
-      <button class="ref-share-btn ref-share-btn--wa" onclick="window.open('https://wa.me/?text=Hey!%20Try%20ManaBazar%20for%20local%20delivery.%20Use%20my%20code%20RAMESH50%20and%20get%20%E2%82%B950%20off%20your%20first%20order!','_blank')">
+      <button class="ref-share-btn ref-share-btn--wa" onclick="window.open('https://wa.me/?text=Hey!%20Try%20Youshop%20for%20local%20delivery.%20Use%20my%20code%20RAMESH50%20and%20get%20%E2%82%B950%20off%20your%20first%20order!','_blank')">
         <span style="font-size:20px;">💬</span>
         WhatsApp
       </button>
@@ -7118,7 +7169,7 @@
   <div class="savings-hero">
     <div style="font-size:40px;">💰</div>
     <div class="savings-amount">₹1,247</div>
-    <div class="savings-label">Total Saved on ManaBazar</div>
+    <div class="savings-label">Total Saved on Youshop</div>
     <div class="savings-period">Since joining · March 2026</div>
   </div>
 
@@ -7156,10 +7207,10 @@
   </div>
 
   <!-- Comparison Card -->
-  <div style="margin:0 var(--space-lg) var(--space-lg);padding:var(--space-lg);background:linear-gradient(135deg,var(--color-primary-light),#FEF2F2);border-radius:var(--radius-lg);text-align:center;">
+  <div style="margin:0 var(--space-lg) var(--space-lg);padding:var(--space-lg);background:linear-gradient(135deg,var(--color-primary-light),var(--color-primary-muted));border-radius:var(--radius-lg);text-align:center;">
     <div style="font-size:var(--font-sm);color:var(--color-muted);">Compared to MRP pricing</div>
     <div style="font-size:var(--font-3xl);font-weight:var(--weight-black);color:var(--color-primary);margin:var(--space-xs) 0;">18% saved</div>
-    <div style="font-size:var(--font-sm);color:var(--color-body);">You save more than 72% of ManaBazar customers 🎉</div>
+    <div style="font-size:var(--font-sm);color:var(--color-body);">You save more than 72% of Youshop customers 🎉</div>
   </div>
 
   <!-- Savings History -->
@@ -7251,7 +7302,7 @@
 
   <div class="dpass-hero">
     <div class="dpass-crown">👑</div>
-    <div class="dpass-title">ManaBazar PASS</div>
+    <div class="dpass-title">Youshop PASS</div>
     <div class="dpass-sub">Unlimited FREE delivery on every order.<br>Save up to ₹600/month.</div>
   </div>
 
@@ -7326,6 +7377,18 @@
   <div style="height: 40px;"></div>
 </div>
 
+<!-- ================================================================
+     GLOBAL FLOATING ORDER TRACKER (Option B)
+     Lives OUTSIDE every screen so it persists app-wide while an order
+     is live. Hidden on tracking/checkout-style screens (see JS).
+     ================================================================ -->
+<div id="orderFab" onclick="go('tracking')" role="button" tabindex="0" aria-label="Track your active order — arriving in 12 minutes">
+  <span style="font-size:16px;flex-shrink:0;">🛵</span>
+  <span class="order-fab-title">Arriving in 12 min · Ravi</span>
+  <span class="order-fab-live"><span class="order-fab-dot"></span>LIVE</span>
+  <span class="order-fab-arrow">›</span>
+</div>
+
 
 <!-- ======== Navigation JS ======== -->
 <script>
@@ -7338,29 +7401,88 @@ function go(name) {
   });
   window.scrollTo({ top: 0, behavior: 'instant' });
   if (name === 'tracking') startETA();
+  updateOrderFab(name);
 }
+
+// ── Global floating order tracker (Option B) ──
+let activeOrder = true; // demo: user has one live order
+// Hide on tracking itself + transactional screens that have their own bottom CTA bar
+const orderFabHideOn = ['detail','cart','coupon','payment','confirmed','tracking','pickup-qr','login','address','whatsapp'];
+function updateOrderFab(currentScreen) {
+  const fab = document.getElementById('orderFab');
+  if (!fab) return;
+  const show = activeOrder && !orderFabHideOn.includes(currentScreen);
+  fab.classList.toggle('show', show);
+  document.body.classList.toggle('has-order-fab', show);
+  if (show) {
+    // Sit ABOVE any fixed bottom bar on this screen (e.g. Home's "View Cart" bar)
+    const scr = document.getElementById('s-' + currentScreen);
+    const bar = scr && scr.querySelector('.cart-bar, .bottom-bar');
+    const lifted = !!(bar && getComputedStyle(bar).display !== 'none');
+    fab.style.bottom = (lifted ? bar.offsetHeight + 22 : 14) + 'px';
+    document.body.classList.toggle('fab-lifted', lifted);
+  } else {
+    document.body.classList.remove('fab-lifted');
+  }
+}
+// Initial state (home is active on load)
+updateOrderFab('home');
 
 // ── Category Filtering ──
 const catNames = { all: 'All Products', medicines: 'Medicines', ayurvedic: 'Ayurvedic', personal: 'Personal Care', baby: 'Baby Care', devices: 'Devices', vitamins: 'Vitamins' };
 
+// ── Lazy product loading: show ~3 rows, reveal more on scroll (All view only) ──
+const LAZY_INITIAL = 6, LAZY_BATCH = 6;
+let lazyShown = LAZY_INITIAL;
+let lazyActive = true; // active only in 'All' view with no active search
+
+function renderLazy() {
+  const cards = document.querySelectorAll('#productsGrid .product-card');
+  cards.forEach((card, i) => { card.style.display = (i < lazyShown) ? '' : 'none'; });
+  const more = document.getElementById('lazyMore');
+  if (more) more.style.display = (lazyActive && lazyShown < cards.length) ? '' : 'none';
+  const title = document.getElementById('productsTitle');
+  if (title) title.innerHTML = 'All Products <span style="font-size: var(--font-base); color: var(--color-subtle); font-weight: var(--weight-regular);">' + cards.length + ' items</span>';
+}
+
 function filterProducts(cat) {
-  // Update tab active state
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
-
-  // Filter product cards
   const cards = document.querySelectorAll('#productsGrid .product-card');
+  if (cat === 'all') {
+    // Back to lazy 'All' view
+    lazyActive = true; lazyShown = LAZY_INITIAL;
+    renderLazy();
+    return;
+  }
+  // A category is selected: show every match, no lazy cap (these sets are small)
+  lazyActive = false;
   let count = 0;
   cards.forEach(card => {
-    const show = cat === 'all' || card.dataset.cat === cat;
+    const show = card.dataset.cat === cat;
     card.style.display = show ? '' : 'none';
     if (show) count++;
   });
-
-  // Update title
+  const more = document.getElementById('lazyMore'); if (more) more.style.display = 'none';
   document.getElementById('productsTitle').innerHTML = (catNames[cat] || 'All Products') +
     ' <span style="font-size: var(--font-base); color: var(--color-subtle); font-weight: var(--weight-regular);">' + count + ' items</span>';
 }
+
+// Reveal the next batch when the "scroll for more" hint comes into view (lazy All view, Home)
+window.addEventListener('scroll', () => {
+  if (!lazyActive) return;
+  const home = document.getElementById('s-home');
+  if (!home || !home.classList.contains('active')) return;
+  const more = document.getElementById('lazyMore');
+  if (!more || more.style.display === 'none') return;
+  if (more.getBoundingClientRect().top < window.innerHeight + 200) {
+    const total = document.querySelectorAll('#productsGrid .product-card').length;
+    if (lazyShown < total) { lazyShown = Math.min(total, lazyShown + LAZY_BATCH); renderLazy(); }
+  }
+});
+
+// Initial render: only the first batch is visible
+renderLazy();
 
 // ── Add to Cart ──
 let cartItems = 3;
@@ -7393,22 +7515,27 @@ const searchInput = document.querySelector('.search-input');
 if (searchInput) {
   searchInput.addEventListener('input', function() {
     const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.cat-tab').classList.add('active');
+    const emptyEl = document.getElementById('searchEmpty');
+    if (!q) {
+      // Cleared search -> restore the lazy 'All' view
+      lazyActive = true; lazyShown = LAZY_INITIAL; renderLazy();
+      if (emptyEl) emptyEl.style.display = 'none';
+      return;
+    }
+    // Active search: show all matches, no lazy cap
+    lazyActive = false;
     const cards = document.querySelectorAll('#productsGrid .product-card');
     let visibleCount = 0;
     cards.forEach(card => {
       const name = card.querySelector('.product-name').textContent.toLowerCase();
-      const show = !q || name.includes(q);
+      const show = name.includes(q);
       card.style.display = show ? '' : 'none';
       if (show) visibleCount++;
     });
-    // Show/hide no results empty state
-    const emptyEl = document.getElementById('searchEmpty');
-    if (emptyEl) emptyEl.style.display = (q && visibleCount === 0) ? '' : 'none';
-    // Reset category tabs to All when searching
-    if (q) {
-      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector('.cat-tab').classList.add('active');
-    }
+    if (emptyEl) emptyEl.style.display = (visibleCount === 0) ? '' : 'none';
+    const more = document.getElementById('lazyMore'); if (more) more.style.display = 'none';
   });
 }
 
@@ -7812,13 +7939,14 @@ function installPWA() {
   btn.style.background = 'var(--color-success)';
   setTimeout(() => closePWA(), 1200);
 }
-// Auto-show PWA prompt after page load + 5s idle (safe for 2G)
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const homeActive = document.getElementById('s-home')?.classList.contains('active');
-    if (homeActive) openPWA();
-  }, 5000);
-});
+// Show PWA prompt on engagement (first meaningful scroll on Home), once — not a blind 5s timer
+let pwaShown = false;
+window.addEventListener('scroll', () => {
+  if (pwaShown || window.scrollY < 600) return;
+  if (!document.getElementById('s-home') || !document.getElementById('s-home').classList.contains('active')) return;
+  pwaShown = true;
+  openPWA();
+}, { passive: true });
 
 // ── BUNDLE ADD TO CART ──
 function addBundle(btn, price) {
@@ -8014,7 +8142,7 @@ function copyRefCode() {
 }
 function shareRef() {
   if (navigator.share) {
-    navigator.share({ title: 'ManaBazar', text: 'Use my code RAMESH50 and get ₹50 off your first order on ManaBazar!' });
+    navigator.share({ title: 'Youshop', text: 'Use my code RAMESH50 and get ₹50 off your first order on Youshop!' });
   } else { copyRefCode(); }
 }
 
@@ -8109,7 +8237,7 @@ function sendImHere(btn) {
 function sharePickupPass() {
   const text = 'Please pick up my order #VJA-2026-1847 from Sri Lakshmi Pharmacy before 6:30 PM. Show this link at the counter: https://manabazar.in/p/vja1847  Thank you! 🙏';
   if (navigator.share) {
-    navigator.share({ title: 'ManaBazar Pickup Pass', text: text });
+    navigator.share({ title: 'Youshop Pickup Pass', text: text });
   } else {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   }
@@ -8218,9 +8346,9 @@ function toggleReplace(el) {
 function shareProduct() {
   const name = document.querySelector('.pd-name')?.textContent || 'Product';
   const price = document.querySelector('.pd-price')?.textContent || '';
-  const text = 'Check out ' + name + ' at ' + price + ' on ManaBazar! 🛍️';
+  const text = 'Check out ' + name + ' at ' + price + ' on Youshop! 🛍️';
   if (navigator.share) {
-    navigator.share({ title: 'ManaBazar', text: text });
+    navigator.share({ title: 'Youshop', text: text });
   } else {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   }
@@ -8299,6 +8427,16 @@ function addFbtToCart(btn) {
   cartItems += count;
   cartTotal += price;
   updateCartBar();
+}
+
+// ── H7: Reveal/hide the health filter row (collapsed by default) ──
+function toggleFilterRow() {
+  const row = document.getElementById('filterTagsRow');
+  const chev = document.getElementById('filterChevron');
+  if (!row) return;
+  const open = row.style.display !== 'none';
+  row.style.display = open ? 'none' : '';
+  if (chev) chev.textContent = open ? '▾' : '▴';
 }
 
 // ── H7: Dietary/Health filter toggle ──
